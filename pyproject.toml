@@ -1,0 +1,41 @@
+[tool.poetry]
+name = "medirag"
+version = "0.1.0"
+description = ""
+authors = ["Alvin Henrick <alvin@equilibriumenergy.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+llama-index = "^0.10.62"
+llama-index-vector-stores-faiss = "^0.1.2"
+llama-index-embeddings-huggingface = "^0.2.2"
+beautifulsoup4 = "^4.12.3"
+lxml = "^5.2.2"
+langchain = "^0.2.12"
+faiss-cpu = "^1.8.0.post1"
+sentence-transformers = "^3.0.1"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.2"
+pre-commit = "^3.8.0"
+pytest-cov = "^5.0.0"
+
+
+[tool.ruff]
+extend-exclude = [
+    "__pycache__",
+    "build",
+    "dist",
+]
+# Same as Black.
+line-length = 120
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+addopts = "-vvv"
+testpaths = "tests"

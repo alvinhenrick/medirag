@@ -12,9 +12,12 @@ llama-index-vector-stores-faiss = "^0.1.2"
 llama-index-embeddings-huggingface = "^0.2.3"
 beautifulsoup4 = "^4.12.3"
 lxml = "^5.3.0"
-langchain = "^0.2.12"
+langchain = "^0.2.13"
 faiss-cpu = "^1.8.0.post1"
 sentence-transformers = "^3.0.1"
+tqdm = "^4.66.5"
+transformers = "^4.44.0"
+torch = "^2.4.0"
 
 
 [tool.poetry.group.dev.dependencies]

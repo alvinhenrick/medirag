@@ -34,4 +34,4 @@ def test_document_processor(data_dir):
     assert len(results) > 0
 
     for result in results:
-        print(result["text"])
+        print(result)

@@ -1,48 +1,80 @@
-from pathlib import Path
-
 import faiss
-from llama_index.core import VectorStoreIndex, StorageContext, Settings
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-from llama_index.vector_stores.faiss import FaissVectorStore
+import json
+import numpy as np
 from sentence_transformers import SentenceTransformer
 
 
 class SemanticCaching:
     def __init__(self,
-                 model_name="sentence-transformers/all-mpnet-base-v2",
+                 model_name='all-mpnet-base-v2',
                  dimension=768,
+                 json_file='cache.json',
                  cosine_threshold=0.7):
 
         self.model_name = model_name
         self.dimension = dimension
         self.cosine_threshold = cosine_threshold
-        self.vector_store_index = None
-        self.storage_context = self.create_faiss_index()
 
-    def create_faiss_index(self):
-        index = faiss.IndexFlatIP(self.dimension)
-        vector_store = FaissVectorStore(faiss_index=index)
-        storage_context = StorageContext.from_defaults(vector_store=vector_store)
-        return storage_context
+        # Initialize Faiss index for cosine similarity
+        self.vector_index = faiss.IndexFlatIP(self.dimension)
+        self.encoder = SentenceTransformer(self.model_name)
+        self.json_file = json_file
+        self.load_cache()
 
-    def build_index(self, documents):
-        embed_model = HuggingFaceEmbedding(model_name=self.model_name)
-        Settings.embed_model = embed_model
-        self.vector_store_index = VectorStoreIndex.from_documents(documents, storage_context=self.storage_context)
+    def load_cache(self):
+        try:
+            with open(self.json_file, 'r') as file:
+                self.cache = json.load(file)
+                if 'embeddings' in self.cache and len(self.cache['embeddings']) > 0:
+                    # Convert the list of embeddings to a numpy array
+                    embeddings = np.array(self.cache['embeddings'], dtype=np.float32)
 
-    def save_cache(self, persist_dir="./cache"):
-        if self.vector_store_index:
-            self.vector_store_index.storage_context.persist(Path(persist_dir))
+                    # Reshape embeddings to ensure 2D shape
+                    # The array is originally of shape (1, n, d), we need it to be (n, d)
+                    if embeddings.ndim == 3:
+                        embeddings = embeddings.reshape(-1, embeddings.shape[-1])
 
-    def load_cache(self, persist_dir="./cache"):
-        vector_store = FaissVectorStore.from_persist_dir(persist_dir)
-        self.storage_context = StorageContext.from_defaults(vector_store=vector_store, persist_dir=persist_dir)
-        self.vector_store_index = VectorStoreIndex(storage_context=self.storage_context)
+                    # Normalize the embeddings since we are using cosine similarity (IndexFlatIP)
+                    faiss.normalize_L2(embeddings)
+
+                    # Add the embeddings to the Faiss index
+                    self.vector_index.add(embeddings)
+        except FileNotFoundError:
+            self.cache = {'questions': [], 'embeddings': [], 'response_text': []}
+        except Exception as e:
+            print(f"Failed to load or process cache: {e}")
+            # Reset the cache if there's an error
+            self.cache = {'questions': [], 'embeddings': [], 'response_text': []}
+
+    def save_cache(self):
+        with open(self.json_file, 'w') as file:
+            json.dump(self.cache, file)
 
     def ask(self, question: str) -> str:
-        if not self.vector_store_index:
-            raise ValueError("Index is not initialized. Please build or load an index first.")
-        # TODO RAG
-        query_engine = self.vector_store_index.as_query_engine()
-        response = query_engine.query(question)
-        return response
+        # Encode the question to get the embedding and normalize it
+        embedding = self.encoder.encode([question], show_progress_bar=False)
+        faiss.normalize_L2(embedding)
+
+        # Search in the index
+        D, I = self.vector_index.search(embedding, 1)
+
+        if D[0][0] >= self.cosine_threshold:
+            # Return the cached response
+            row_id = I[0][0]
+            return self.cache['response_text'][row_id]
+        else:
+            # Generate a new answer
+            answer = self.invoke_rag(question)
+            self.cache['questions'].append(question)
+            self.cache['embeddings'].append(embedding.tolist())
+            self.cache['response_text'].append(answer)
+
+            # Add new normalized embedding to the index
+            self.vector_index.add(embedding)
+            self.save_cache()
+            return answer
+
+    def invoke_rag(self, question: str):
+        # Placeholder for a RAG invocation
+        answer = "Generated answer for: " + question
+        return answer

@@ -1,6 +1,6 @@
 from medirag.core.data_manager import DailyMedDataManager
 from medirag.core.document_processor import DailyMedDocumentProcessor
-from medirag.index.ingest import DailyMedIndexer
+from medirag.index.local import DailyMedIndexer
 
 
 def test_document_processor(data_dir):

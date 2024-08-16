@@ -1,5 +1,3 @@
-from linecache import cache
-
 import faiss
 import json
 import numpy as np

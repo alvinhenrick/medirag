@@ -29,8 +29,7 @@ def test_rag_with_example(data_dir):
     sm = SemanticCaching(model_name='all-mpnet-base-v2', dimension=768,
                          json_file='rag_test_cache.json', rag=rag)
 
-    result = sm.ask(query)
-    print(result)
+    result1 = sm.ask(query)
+    result2 = sm.ask(query)
 
-    result = sm.ask(query)
-    print(result)
+    assert result1 == result2

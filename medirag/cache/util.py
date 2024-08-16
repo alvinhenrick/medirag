@@ -1,3 +1,5 @@
+from linecache import cache
+
 import faiss
 import json
 import numpy as np
@@ -19,32 +21,37 @@ class SemanticCaching:
         self.vector_index = faiss.IndexFlatIP(self.dimension)
         self.encoder = SentenceTransformer(self.model_name)
         self.json_file = json_file
-        self.load_cache()
+        self.cache = self.load_cache()
 
     def load_cache(self):
+        local_cache = {'questions': [], 'embeddings': [], 'response_text': []}
         try:
-            with open(self.json_file, 'r') as file:
-                self.cache = json.load(file)
-                if 'embeddings' in self.cache and len(self.cache['embeddings']) > 0:
-                    # Convert the list of embeddings to a numpy array
-                    embeddings = np.array(self.cache['embeddings'], dtype=np.float32)
+            if self.json_file:
+                with open(self.json_file, 'r') as file:
+                    local_cache = json.load(file)
+                    if 'embeddings' in self.cache and len(self.cache['embeddings']) > 0:
+                        # Convert the list of embeddings to a numpy array
+                        embeddings = np.array(self.cache['embeddings'], dtype=np.float32)
 
-                    # Reshape embeddings to ensure 2D shape
-                    # The array is originally of shape (1, n, d), we need it to be (n, d)
-                    if embeddings.ndim == 3:
-                        embeddings = embeddings.reshape(-1, embeddings.shape[-1])
+                        # Reshape embeddings to ensure 2D shape
+                        # The array is originally of shape (1, n, d), we need it to be (n, d)
+                        if embeddings.ndim == 3:
+                            embeddings = embeddings.reshape(-1, embeddings.shape[-1])
 
-                    # Normalize the embeddings since we are using cosine similarity (IndexFlatIP)
-                    faiss.normalize_L2(embeddings)
+                        # Normalize the embeddings since we are using cosine similarity (IndexFlatIP)
+                        faiss.normalize_L2(embeddings)
 
-                    # Add the embeddings to the Faiss index
-                    self.vector_index.add(embeddings)
+                        # Add the embeddings to the Faiss index
+                        self.vector_index.add(embeddings)
+                return local_cache
+            else:
+                return local_cache
         except FileNotFoundError:
-            self.cache = {'questions': [], 'embeddings': [], 'response_text': []}
+            return local_cache
         except Exception as e:
             print(f"Failed to load or process cache: {e}")
             # Reset the cache if there's an error
-            self.cache = {'questions': [], 'embeddings': [], 'response_text': []}
+            return local_cache
 
     def save_cache(self):
         with open(self.json_file, 'w') as file:

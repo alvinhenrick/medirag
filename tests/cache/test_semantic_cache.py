@@ -1,6 +1,6 @@
 import pytest
 
-from medirag.cache.util import SemanticCaching
+from medirag.cache.local import SemanticCaching
 
 
 # Test the SemanticCaching class with real embeddings and index interactions

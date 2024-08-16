@@ -3,7 +3,7 @@ from typing import Union, List, Optional
 import dspy
 from dsp import dotdict
 
-from medirag.index.ingest import DailyMedIndexer
+from medirag.index.local import DailyMedIndexer
 
 
 class DailyMedRetrieve(dspy.Retrieve):

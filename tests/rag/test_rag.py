@@ -1,5 +1,5 @@
 from medirag.cache.local import SemanticCaching
-from medirag.index.ingest import DailyMedIndexer
+from medirag.index.local import DailyMedIndexer
 from medirag.rag.qa import RAG, DailyMedRetrieve
 import dspy
 

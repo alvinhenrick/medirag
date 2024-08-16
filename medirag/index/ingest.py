@@ -1,4 +1,3 @@
-from pathlib import Path
 import faiss
 from llama_index.core import VectorStoreIndex, StorageContext, Settings
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding

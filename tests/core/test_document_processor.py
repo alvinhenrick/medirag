@@ -25,7 +25,7 @@ def test_document_processor(data_dir):
     # Index and query documents
     indexer = DailyMedIndexer()
     indexer.load_index(documents=documents)
-    indexer.save_index()
+    # indexer.save_index()
 
     query = "What are the key points about the drug's usage?"
     results = indexer.retrieve(query)

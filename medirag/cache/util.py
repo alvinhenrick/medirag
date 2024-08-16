@@ -3,18 +3,21 @@ import json
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
+from medirag.rag.qa import RAG
+
 
 class SemanticCaching:
     def __init__(self,
                  model_name='all-mpnet-base-v2',
                  dimension=768,
                  json_file='cache.json',
-                 cosine_threshold=0.7):
+                 cosine_threshold=0.7,
+                 rag: RAG = None):
 
         self.model_name = model_name
         self.dimension = dimension
         self.cosine_threshold = cosine_threshold
-
+        self.rag = rag
         # Initialize Faiss index for cosine similarity
         self.vector_index = faiss.IndexFlatIP(self.dimension)
         self.encoder = SentenceTransformer(self.model_name)
@@ -27,9 +30,9 @@ class SemanticCaching:
             if self.json_file:
                 with open(self.json_file, 'r') as file:
                     local_cache = json.load(file)
-                    if 'embeddings' in self.cache and len(self.cache['embeddings']) > 0:
+                    if 'embeddings' in local_cache and len(local_cache['embeddings']) > 0:
                         # Convert the list of embeddings to a numpy array
-                        embeddings = np.array(self.cache['embeddings'], dtype=np.float32)
+                        embeddings = np.array(local_cache['embeddings'], dtype=np.float32)
 
                         # Reshape embeddings to ensure 2D shape
                         # The array is originally of shape (1, n, d), we need it to be (n, d)
@@ -80,6 +83,5 @@ class SemanticCaching:
             return answer
 
     def invoke_rag(self, question: str):
-        # Placeholder for a RAG invocation
-        answer = "Generated answer for: " + question
-        return answer
+        response = self.rag(question)
+        return response.answer

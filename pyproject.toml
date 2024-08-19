@@ -22,6 +22,7 @@ nltk = "3.8.1"
 dspy-ai = "^2.4.13"
 python-dotenv = "^1.0.1"
 accelerate = "^0.33.0"
+gradio = "^4.41.0"
 
 
 [tool.poetry.group.dev.dependencies]

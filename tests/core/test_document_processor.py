@@ -27,7 +27,7 @@ def test_document_processor(data_dir):
     indexer.load_index(documents=documents)
     # indexer.save_index()
 
-    query = "What are the key points about the drug's usage?"
+    query = "What are the key things about the drug's usage?"
     results = indexer.retrieve(query)
 
     assert len(results) > 0

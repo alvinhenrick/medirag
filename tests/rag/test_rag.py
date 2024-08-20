@@ -19,7 +19,7 @@ def test_rag_with_example(data_dir):
     indexer.load_index()
     rm = DailyMedRetrieve(daily_med_indexer=indexer)
 
-    query = "What are the key points about the drug's usage?"
+    query = "What are the key things about the drug's usage?"
     turbo = dspy.OpenAI(model='gpt-3.5-turbo')
 
     dspy.settings.configure(lm=turbo, rm=rm)
@@ -31,6 +31,7 @@ def test_rag_with_example(data_dir):
     sm.load_cache()
 
     result1 = sm.ask(query)
+    print(result1)
     result2 = sm.ask(query)
 
     assert result1 == result2

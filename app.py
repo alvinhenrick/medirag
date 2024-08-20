@@ -5,7 +5,6 @@ from medirag.rag.qa import RAG, DailyMedRetrieve
 import dspy
 from pathlib import Path
 
-# Load environment variables and set up the components
 from dotenv import load_dotenv
 
 load_dotenv()

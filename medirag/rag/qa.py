@@ -29,8 +29,7 @@ class GenerateAnswer(dspy.Signature):
     """
     You are an AI assistant designed to answer questions based on provided context:
       - Ensure that your responses are accurate, safe, and reliable.
-      - Always remind users that you are not a doctor or medical advisor.
-      - Provide concise, clear, and relevant information, avoiding any form of diagnosis or treatment advice.
+      - Do not provide any form of diagnosis or treatment advice.
     """
     context = dspy.InputField(desc="Contains relevant facts about drug labels")
     question = dspy.InputField()

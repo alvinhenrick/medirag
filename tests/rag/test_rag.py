@@ -10,7 +10,7 @@ load_dotenv()  # take environment variables from .env.
 
 def test_rag_with_example(data_dir):
     # Example usage:
-    index_path = data_dir.joinpath("daily_med_indexed")
+    index_path = data_dir.joinpath("daily_bio_bert_indexed")
     # Ensure the path is correct and the directory exists
     assert index_path.exists(), f"Directory not found: {index_path}"
 
@@ -19,7 +19,7 @@ def test_rag_with_example(data_dir):
     indexer.load_index()
     rm = DailyMedRetrieve(daily_med_indexer=indexer)
 
-    query = "What are the key things about the drug's usage?"
+    query = "What information do you have about Clopidogrel? "
     turbo = dspy.OpenAI(model='gpt-3.5-turbo')
 
     dspy.settings.configure(lm=turbo, rm=rm)

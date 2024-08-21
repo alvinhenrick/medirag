@@ -20,7 +20,7 @@ turbo = dspy.OpenAI(model='gpt-4o')
 dspy.settings.configure(lm=turbo, rm=rm)
 
 rag = RAG(k=5)
-sm = SemanticCaching(model_name='dmis-lab/biobert-base-cased-v1.2', dimension=768,
+sm = SemanticCaching(model_name='sentence-transformers/all-mpnet-base-v2', dimension=768,
                      json_file='rag_test_cache.json', cosine_threshold=.85, rag=rag)
 sm.load_cache()
 

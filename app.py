@@ -16,7 +16,7 @@ indexer = DailyMedIndexer(persist_dir=index_path)
 indexer.load_index()
 rm = DailyMedRetrieve(daily_med_indexer=indexer)
 
-turbo = dspy.OpenAI(model='gpt-4o')
+turbo = dspy.OpenAI(model='gpt-3.5-turbo')
 dspy.settings.configure(lm=turbo, rm=rm)
 
 rag = RAG(k=5)

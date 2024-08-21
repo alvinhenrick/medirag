@@ -32,7 +32,7 @@ class GenerateAnswer(dspy.Signature):
     """
     context = dspy.InputField(desc="Contains relevant facts about drug labels")
     question = dspy.InputField()
-    answer = dspy.OutputField()
+    answer = dspy.OutputField(desc="Answer with detailed summary")
 
 
 class RAG(dspy.Module):
@@ -46,6 +46,8 @@ class RAG(dspy.Module):
 
     def forward(self, question):
         context = self.retrieve(question).passages
+
+        print(context)
 
         in_gr = self.input_guardrail(user_input=question)
 

@@ -10,18 +10,18 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Initialize the components
-data_dir = Path(".//tests/data")
-index_path = data_dir.joinpath("daily_med_indexed")
+data_dir = Path("data")
+index_path = data_dir.joinpath("dm_spl_release_human_rx_part1")
 indexer = DailyMedIndexer(persist_dir=index_path)
 indexer.load_index()
 rm = DailyMedRetrieve(daily_med_indexer=indexer)
 
-turbo = dspy.OpenAI(model='gpt-3.5-turbo')
+turbo = dspy.OpenAI(model='gpt-4o')
 dspy.settings.configure(lm=turbo, rm=rm)
 
-rag = RAG(k=3)
+rag = RAG(k=5)
 sm = SemanticCaching(model_name='all-mpnet-base-v2', dimension=768,
-                     json_file='rag_test_cache.json', rag=rag)
+                     json_file='rag_test_cache.json', cosine_threshold=.85, rag=rag)
 sm.load_cache()
 
 

@@ -6,7 +6,7 @@ from llama_index.vector_stores.faiss import FaissVectorStore
 
 class DailyMedIndexer:
     def __init__(self,
-                 model_name="sentence-transformers/all-mpnet-base-v2",
+                 model_name="dmis-lab/biobert-base-cased-v1.2",
                  dimension=768,
                  persist_dir="./storage"):
 

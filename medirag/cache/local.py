@@ -8,7 +8,7 @@ from medirag.rag.qa import RAG
 
 class SemanticCaching:
     def __init__(self,
-                 model_name='all-mpnet-base-v2',
+                 model_name='dmis-lab/biobert-base-cased-v1.2',
                  dimension=768,
                  json_file='cache.json',
                  cosine_threshold=0.7,

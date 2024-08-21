@@ -28,13 +28,11 @@ class DailyMedRetrieve(dspy.Retrieve):
 class GenerateAnswer(dspy.Signature):
     """
     You are an AI assistant designed to answer questions based on provided context:
-      - Ensure that your responses are accurate, safe, and reliable.
       - Do not provide any form of diagnosis or treatment advice.
     """
     context = dspy.InputField(desc="Contains relevant facts about drug labels")
     question = dspy.InputField()
-    answer = dspy.OutputField(
-        desc="A concise response, summarizing key drug information, side effects, or interactions.")
+    answer = dspy.OutputField()
 
 
 class RAG(dspy.Module):

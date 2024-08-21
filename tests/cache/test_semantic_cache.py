@@ -7,7 +7,7 @@ from medirag.cache.local import SemanticCaching
 @pytest.fixture(scope="module")
 def semantic_caching():
     # This will actually initialize the model and the index
-    return SemanticCaching(model_name='dmis-lab/biobert-base-cased-v1.2', dimension=768,
+    return SemanticCaching(model_name='sentence-transformers/all-mpnet-base-v2', dimension=768,
                            json_file='real_test_cache.json')
 
 

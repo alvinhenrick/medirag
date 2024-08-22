@@ -23,7 +23,7 @@ receive clear, understandable answers.
 
 ## High-Level Architecture
 
-[Architecture](doc/images/MediRAg.drawio.png)
+![Architecture](doc/images/MediRAg.drawio.png)
 
 1. **Question-Answering Bot and Website**:
     - Users can interact with a bot on the website to ask drug-related questions.

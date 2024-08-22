@@ -7,15 +7,13 @@ from llama_index.core.readers.base import BaseReader
 
 def normalize_text(text):
     """Normalize the text by lowercasing, removing extra spaces, and stripping unnecessary characters."""
-    text = text.lower()  # Lowercase the text
-    text = re.sub(r'\s+', ' ', text)  # Replace multiple spaces/newlines with a single space
-    text = re.sub(r'[^\w\s]', '', text)  # Remove punctuation
+    text = text.lower()
+    text = re.sub(r'\s+', ' ', text)
     return text.strip()
 
 
 def format_output_string(drug_name, sections_data):
-    """Format the output string for document embedding."""
-    output = [f"Drug Name: {drug_name}"]
+    output = [f"Drug and Generic Names: {drug_name}"]
 
     for title, paragraphs in sections_data.items():
         output.append(f"{title}:")
@@ -26,33 +24,47 @@ def format_output_string(drug_name, sections_data):
     return "\n".join(output)
 
 
+def extract_drug_and_generic_names(structured_body):
+    # Extract the main drug name and any generic names
+    drug_names = set()  # Use a set to avoid duplicates
+
+    # Look for manufacturedProduct elements
+    manufactured_products = structured_body.find_all("manufacturedProduct")
+
+    for manufactured_product in manufactured_products:
+        # Extract the main drug name
+        name_tag = manufactured_product.find("name")
+        if name_tag:
+            drug_names.add(name_tag.get_text(strip=True))
+
+        # Extract the generic names if available
+        as_generic = manufactured_product.find("asEntityWithGeneric")
+        if as_generic:
+            generic_name_tag = as_generic.find("genericMedicine").find("name")
+            if generic_name_tag:
+                drug_names.add(generic_name_tag.get_text(strip=True))
+
+    return list(drug_names)
+
+
 def parse_drug_information(soup, extra_info=None):
     # Extract the setId
     set_id = None
     set_id_tag = soup.find("setId")
     if set_id_tag:
         set_id = set_id_tag.get("root", None)
-
     if not set_id:
         return None
 
-    # Ensure structured body exists
     structured_body = soup.find("structuredBody")
-    if not structured_body:
-        return None
 
     # Extract the drug name
-    drug_name = None
-    manufactured_product = structured_body.find("manufacturedProduct")
-    if manufactured_product:
-        inner_product = manufactured_product.find("manufacturedProduct")
-        if inner_product:
-            name_tag = inner_product.find("name")
-            if name_tag:
-                drug_name = name_tag.get_text(strip=True)
+    drug_names = extract_drug_and_generic_names(structured_body)
 
-    if not drug_name:
+    if len(drug_names) == 0:
         return None
+
+    drug_name = " | ".join(drug_names)
 
     # Iterate over components and extract sections
     components = structured_body.find_all("component")
@@ -62,14 +74,14 @@ def parse_drug_information(soup, extra_info=None):
         sections = component.find_all("section")
         for section in sections:
             title_tag = section.find("title")
-            title_text = normalize_text(title_tag.get_text(strip=True)) if title_tag else None
-            if not title_text:
+            if title_tag:
+                title_text = normalize_text(title_tag.get_text(strip=True))
+            else:
                 continue  # Skip if title is not found
 
             paragraphs = section.find_all("paragraph")
             paragraphs_text = []
             seen_paragraphs = set()  # Set to track unique paragraphs
-
             for paragraph in paragraphs:
                 paragraph_text = normalize_text(paragraph.get_text(strip=True))
                 if paragraph_text and paragraph_text not in seen_paragraphs:
@@ -79,7 +91,10 @@ def parse_drug_information(soup, extra_info=None):
             # Only include sections with non-empty, non-duplicate paragraphs
             if paragraphs_text:
                 if title_text in sections_data:
-                    sections_data[title_text].extend(paragraphs_text)
+                    existing_paragraphs = set(sections_data[title_text])
+                    # Add only unique paragraphs that aren't already in the title's list
+                    unique_paragraphs = [p for p in paragraphs_text if p not in existing_paragraphs]
+                    sections_data[title_text].extend(unique_paragraphs)
                 else:
                     sections_data[title_text] = paragraphs_text
 

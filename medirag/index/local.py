@@ -6,7 +6,7 @@ from llama_index.vector_stores.faiss import FaissVectorStore
 
 class DailyMedIndexer:
     def __init__(self,
-                 model_name="dmis-lab/biobert-base-cased-v1.2",
+                 model_name="nuvocare/WikiMedical_sent_biobert",
                  dimension=768,
                  persist_dir="./storage"):
 

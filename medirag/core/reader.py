@@ -1,11 +1,20 @@
 import zipfile
-
+import re
 from bs4 import BeautifulSoup
 from llama_index.core import Document
 from llama_index.core.readers.base import BaseReader
 
 
+def normalize_text(text):
+    """Normalize the text by lowercasing, removing extra spaces, and stripping unnecessary characters."""
+    text = text.lower()  # Lowercase the text
+    text = re.sub(r'\s+', ' ', text)  # Replace multiple spaces/newlines with a single space
+    text = re.sub(r'[^\w\s]', '', text)  # Remove punctuation
+    return text.strip()
+
+
 def format_output_string(drug_name, sections_data):
+    """Format the output string for document embedding."""
     output = [f"Drug Name: {drug_name}"]
 
     for title, paragraphs in sections_data.items():
@@ -27,7 +36,10 @@ def parse_drug_information(soup, extra_info=None):
     if not set_id:
         return None
 
+    # Ensure structured body exists
     structured_body = soup.find("structuredBody")
+    if not structured_body:
+        return None
 
     # Extract the drug name
     drug_name = None
@@ -50,27 +62,24 @@ def parse_drug_information(soup, extra_info=None):
         sections = component.find_all("section")
         for section in sections:
             title_tag = section.find("title")
-            if title_tag:
-                title_text = title_tag.get_text(strip=True)
-            else:
+            title_text = normalize_text(title_tag.get_text(strip=True)) if title_tag else None
+            if not title_text:
                 continue  # Skip if title is not found
 
             paragraphs = section.find_all("paragraph")
             paragraphs_text = []
             seen_paragraphs = set()  # Set to track unique paragraphs
+
             for paragraph in paragraphs:
-                paragraph_text = paragraph.get_text(strip=True)
-                if paragraph_text and paragraph_text.strip() and paragraph_text not in seen_paragraphs:
+                paragraph_text = normalize_text(paragraph.get_text(strip=True))
+                if paragraph_text and paragraph_text not in seen_paragraphs:
                     paragraphs_text.append(paragraph_text)
                     seen_paragraphs.add(paragraph_text)
 
             # Only include sections with non-empty, non-duplicate paragraphs
             if paragraphs_text:
                 if title_text in sections_data:
-                    existing_paragraphs = set(sections_data[title_text])
-                    # Add only unique paragraphs that aren't already in the title's list
-                    unique_paragraphs = [p for p in paragraphs_text if p not in existing_paragraphs]
-                    sections_data[title_text].extend(unique_paragraphs)
+                    sections_data[title_text].extend(paragraphs_text)
                 else:
                     sections_data[title_text] = paragraphs_text
 

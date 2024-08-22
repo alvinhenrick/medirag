@@ -58,7 +58,12 @@ To get started with MedRAG:
    ```bash
    git clone https://github.com/alvinhenrick/medirag.git
    ```
-2. Install the required dependencies:
+2. Create `.env` and insert your tokens
+    ```bash
+        HF_TOKEN=Your token
+        OPENAI_API_KEY=Your token
+    ```
+3. Install the required dependencies:
    ```bash
    cd medirag
    poetry install

@@ -31,19 +31,10 @@ class SemanticCaching:
                 with open(self.json_file, 'r') as file:
                     local_cache = json.load(file)
                     if 'embeddings' in local_cache and len(local_cache['embeddings']) > 0:
-                        # Convert the list of embeddings to a numpy array
-                        embeddings = np.array(local_cache['embeddings'], dtype=np.float32)
-
-                        # Reshape embeddings to ensure 2D shape
-                        # The array is originally of shape (1, n, d), we need it to be (n, d)
-                        if embeddings.ndim == 3:
-                            embeddings = embeddings.reshape(-1, embeddings.shape[-1])
-
-                        # Normalize the embeddings since we are using cosine similarity (IndexFlatIP)
-                        faiss.normalize_L2(embeddings)
-
-                        # Add the embeddings to the Faiss index
-                        self.vector_index.add(embeddings)
+                        for embedding in local_cache['embeddings']:
+                            _embedding = np.array(embedding, dtype=np.float32)
+                            # Add the embeddings to the Faiss index
+                            self.vector_index.add(_embedding)
                 return local_cache
             else:
                 return local_cache

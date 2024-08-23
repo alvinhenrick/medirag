@@ -18,8 +18,9 @@ jobs:
       - name: Fetch all LFS objects
         run: git lfs fetch --all
 
-      - name: Verify LFS objects
-        run: git lfs ls-files
+      - name: Pull latest changes from Hugging Face Hub
+        run: |
+          git pull --rebase https://${{ vars.HF_USERNAME }}:$HF_TOKEN@huggingface.co/spaces/${{ vars.HF_USERNAME }}/medirag main
 
       - name: Push to Hugging Face Hub
         env:

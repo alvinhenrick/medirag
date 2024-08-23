@@ -1,6 +1,6 @@
-<div style="display: flex; align-items: center;">
+<div style="display: inline-flex; align-items: center;">
   <img src="doc/images/MediRag.png" alt="MedRAG" width="100" style="margin-right: 10px;"/>
-  <h1 style="margin: 0;">MediRAG</h1>
+  <span style="font-size: 2em; font-weight: bold;">MedRAG</span>
 </div>
 
 **MediRAG** is a Retrieval-Augmented Generation (RAG) system designed to make drug-related information more accessible to

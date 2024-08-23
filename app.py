@@ -33,18 +33,18 @@ def ask_med_question(query):
 # Set up the Gradio interface
 with gr.Blocks() as app:
     gr.Row([
-        gr.Markdown("# Medical RAG Question Answering")
+        gr.Image("doc/images/MediRag.png", label="Logo", tooltips=["DailyMed Logo"]).style(height=100),
+        gr.Markdown("# DailyMed RAG Question Answering")
     ])
     gr.Row([
-        gr.Markdown("## Ask any question about medication usage and get answers based on DailyMed data.")
+        gr.Markdown("### Ask any question about medication usage and get answers based on DailyMed data.")
     ])
     with gr.Row():
-        input_text = gr.Textbox(lines=2, placeholder="Enter your question about a drug...")
+        input_text = gr.Textbox(lines=2, label="Question", placeholder="Enter your question about a drug...")
     with gr.Row():
         button = gr.Button("Submit")
     with gr.Row():
-        output_text = gr.Textbox(interactive=False, label="Response", show_label=False,
-                                 lines=10)
+        output_text = gr.Textbox(interactive=False, label="Response", lines=10)
 
     button.click(fn=ask_med_question, inputs=input_text, outputs=output_text)
 

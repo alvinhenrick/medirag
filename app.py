@@ -1,4 +1,6 @@
 import gradio as gr
+from huggingface_hub import scan_cache_dir
+
 from medirag.cache.local import SemanticCaching
 from medirag.index.local import DailyMedIndexer
 from medirag.rag.qa import RAG, DailyMedRetrieve
@@ -32,20 +34,18 @@ def ask_med_question(query):
 
 # Set up the Gradio interface
 with gr.Blocks() as app:
-    gr.Row([
-        gr.Image("doc/images/MediRag.png", label="Logo", tooltips=["DailyMed Logo"]).style(height=100),
-        gr.Markdown("# DailyMed RAG Question Answering")
-    ])
-    gr.Row([
+    with gr.Row():
+        with gr.Column(scale=1):
+            gr.Image("doc/images/MediRag.png", width=100, height=100, min_width=75,
+                     show_label=False, show_download_button=False, show_fullscreen_button=False)
+        with gr.Column(scale=2):
+            gr.Markdown("# DailyMed RAG Question Answering")
+    with gr.Row():
         gr.Markdown("### Ask any question about medication usage and get answers based on DailyMed data.")
-    ])
-    with gr.Row():
-        input_text = gr.Textbox(lines=2, label="Question", placeholder="Enter your question about a drug...")
-    with gr.Row():
-        button = gr.Button("Submit")
-    with gr.Row():
-        output_text = gr.Textbox(interactive=False, label="Response", lines=10)
 
+    input_text = gr.Textbox(lines=2, label="Question", placeholder="Enter your question about a drug...")
+    button = gr.Button("Submit")
+    output_text = gr.Textbox(interactive=False, label="Response", lines=10)
     button.click(fn=ask_med_question, inputs=input_text, outputs=output_text)
 
 app.launch()

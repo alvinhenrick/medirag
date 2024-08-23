@@ -1,3 +1,5 @@
+![image](doc/images/MediRag.png){: style="float: left"}
+
 # MedRAG
 
 **MedRAG** is a Retrieval-Augmented Generation (RAG) system designed to make drug-related information more accessible to

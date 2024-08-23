@@ -1,8 +1,7 @@
-<p style="text-align: left;">
+<div style="display: flex; align-items: center; justify-content: space-between;">
   <img src="doc/images/MediRag.png" alt="MedRAG" width="100"/>
-</p>
-
-# MedRAG
+  <h1 style="margin: 0;">MedRAG</h1>
+</div>
 
 **MedRAG** is a Retrieval-Augmented Generation (RAG) system designed to make drug-related information more accessible to
 patients. Many patients struggle with the patient information leaflets that accompany medications, which are often

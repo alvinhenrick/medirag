@@ -68,7 +68,7 @@ To get started with MedRAG:
    cd medirag
    poetry install
    ```
-3. Run the bot:
+4. Run the app:
    ```bash
     poetry run python app.py
    ```

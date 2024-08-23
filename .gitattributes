@@ -1,5 +1,5 @@
 data/**/*.json filter=lfs diff=lfs merge=lfs -text
-tests/data/**/*.zip filter=lfs diff=lfs merge=lfs -text
+data/**/*.zip filter=lfs diff=lfs merge=lfs -text
 *.7z filter=lfs diff=lfs merge=lfs -text
 *.arrow filter=lfs diff=lfs merge=lfs -text
 *.bin filter=lfs diff=lfs merge=lfs -text

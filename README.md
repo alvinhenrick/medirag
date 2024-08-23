@@ -1,9 +1,9 @@
-<table style="border-collapse: collapse; border: none;">
+<table>
     <tr>
-        <td style="border: none; vertical-align: bottom;">
-            <img src="doc/images/MediRag.png" alt="Sample Image" width="150">
+        <td>
+            <img src="doc/images/MediRag.png" alt="MediRAG" width="150"/>
         </td>
-        <td style="border: none; vertical-align: bottom;">
+        <td>
             <h1>MediRAG</h1>
         </td>
     </tr>

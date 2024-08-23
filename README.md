@@ -1,6 +1,7 @@
 <p style="text-align: left;">
-  <img src="doc/images/MediRag.png" alt="MedRAG" width="50"/>
+  <img src="doc/images/MediRag.png" alt="MedRAG" width="100"/>
 </p>
+
 # MedRAG
 
 **MedRAG** is a Retrieval-Augmented Generation (RAG) system designed to make drug-related information more accessible to

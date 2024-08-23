@@ -1,4 +1,4 @@
-<table>
+<table style="border-collapse: collapse; border: none;">
   <tr>
     <td><img src="doc/images/MediRag.png" alt="Sample Image" width="150"></td>
     <td><h1>MediRAG</h1></td>

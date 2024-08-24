@@ -1,13 +1,12 @@
+from pathlib import Path
+
+import dspy
 import gradio as gr
-from huggingface_hub import scan_cache_dir
+from dotenv import load_dotenv
 
 from medirag.cache.local import SemanticCaching
 from medirag.index.local import DailyMedIndexer
 from medirag.rag.qa import RAG, DailyMedRetrieve
-import dspy
-from pathlib import Path
-
-from dotenv import load_dotenv
 
 load_dotenv()
 

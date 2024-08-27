@@ -8,6 +8,14 @@ from dotenv import load_dotenv
 load_dotenv()  # take environment variables from .env.
 
 
+def ask_med_question(sm, rag, query):
+    response = sm.lookup(question=query)
+    if not response:
+        response = rag(query).answer
+        sm.save(query, response)
+    return response
+
+
 def test_rag_with_example(data_dir):
     # Example usage:
     index_path = data_dir.joinpath("daily_bio_bert_indexed")
@@ -19,7 +27,7 @@ def test_rag_with_example(data_dir):
     indexer.load_index()
     rm = DailyMedRetrieve(daily_med_indexer=indexer)
 
-    query = "What information do you have about Clopidogrel? "
+    query = "What information do you have about Clopidogrel?"
     turbo = dspy.OpenAI(model='gpt-3.5-turbo')
 
     dspy.settings.configure(lm=turbo, rm=rm)
@@ -27,11 +35,11 @@ def test_rag_with_example(data_dir):
     rag = RAG(k=3)
 
     sm = SemanticCaching(model_name='sentence-transformers/all-mpnet-base-v2', dimension=768,
-                         json_file='rag_test_cache.json', rag=rag)
+                         json_file='rag_test_cache.json')
     sm.load_cache()
 
-    result1 = sm.ask(query)
+    result1 = ask_med_question(sm, rag, query)
     print(result1)
-    result2 = sm.ask(query)
+    result2 = ask_med_question(sm, rag, query)
 
     assert result1 == result2

@@ -60,15 +60,19 @@ receive clear, understandable answers.
     - Uses DSPy to dynamically generate prompts that guide the retrieval process.
     - Helps in crafting responses that are both contextually relevant and easy to understand.
 
-4. **Retrieval-Augmented Generation (RAG) with Semantic Caching**:
+4. **LlamaIndex streaming workflows**:
+    - Uses LlamaIndex to construct the streaming workflow.
+    - Helps in crafting responses that are both contextually relevant and easy to understand.
+    -
+5. **Retrieval-Augmented Generation (RAG) with Semantic Caching**:
     - Utilizes a RAG model to combine real-time retrieval with language generation.
     - Semantic caching improves the response time by reusing answers to similar questions.
 
-5. **Vector Database**:
+6. **Vector Database**:
     - Employs a vector database for fast and effective retrieval of information.
     - Enhances the bot's ability to search and retrieve relevant content from large datasets.
 
-6. **Observability**:
+7. **Observability**:
     - Includes tools to monitor and log the system’s performance.
     - Helps in maintaining system integrity and ensuring reliable operation.
 
@@ -94,6 +98,28 @@ To get started with MedRAG:
    ```bash
     poetry run python app.py
    ```
+
+## To-Do List
+
+### High Priority
+
+- [ ] Implement comprehensive observability tools to monitor and log system performance effectively.
+- [ ] Explore and implement semantic chunking to enhance retrieval performance and accuracy.
+
+### Medium Priority
+
+- [ ] Experiment with different embeddings and other models to enhance retrieval performance and accuracy.
+- [ ] Experiment with different embeddings and other models to improve the accuracy and relevance of bot responses.
+- [ ] Index all five DailyMed datasets to ensure complete data coverage and retrieval capabilities.
+    - [x] https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part1.zip
+    - [ ] https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part2.zip
+    - [ ] https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part3.zip
+    - [ ] https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part4.zip
+    - [ ] https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part5.zip
+
+### Low Priority
+
+- [ ] Add an LLM agent to further enhance the system’s capabilities and improve interaction dynamics.
 
 ## License
 

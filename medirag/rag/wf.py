@@ -115,7 +115,7 @@ class RAGWorkflow(Workflow):
 
 # Main function
 async def main():
-    data_dir = Path("data")
+    data_dir = Path("../../data")
     index_path = data_dir.joinpath("dm_spl_release_human_rx_part1")
 
     # Initialize the indexer and load the index

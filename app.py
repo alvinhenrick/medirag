@@ -1,12 +1,14 @@
 from pathlib import Path
-
-import dspy
 import gradio as gr
 from dotenv import load_dotenv
-
 from medirag.cache.local import SemanticCaching
 from medirag.index.local import DailyMedIndexer
 from medirag.rag.qa import RAG, DailyMedRetrieve
+from medirag.rag.wf import RAGWorkflow
+from llama_index.llms.openai import OpenAI
+from llama_index.core import Settings
+
+import dspy
 
 load_dotenv()
 
@@ -19,19 +21,43 @@ rm = DailyMedRetrieve(daily_med_indexer=indexer)
 
 turbo = dspy.OpenAI(model='gpt-3.5-turbo', max_tokens=4000)
 dspy.settings.configure(lm=turbo, rm=rm)
+# Set the LLM model
+Settings.llm = OpenAI(model='gpt-3.5-turbo')
 
-rag = RAG(k=5)
 sm = SemanticCaching(model_name='sentence-transformers/all-mpnet-base-v2', dimension=768,
                      json_file='rag_test_cache.json', cosine_threshold=.90)
 sm.load_cache()
 
+# Initialize RAGWorkflow with indexer
+rag = RAG(k=5)
+rag_workflow = RAGWorkflow(indexer=indexer, timeout=60, top_k=10, top_n=5)
 
-def ask_med_question(query):
+
+async def ask_med_question(query, enable_stream):
+    # Check the cache first
     response = sm.lookup(question=query)
-    if not response:
-        response = rag(query).answer
-        sm.save(query, response)
-    return response
+    if response:
+        # Return cached response if found
+        yield response
+    else:
+        if enable_stream:
+            # Stream response using RAGWorkflow
+            result = await rag_workflow.run(query=query)
+            accumulated_response = ""
+
+            async for chunk in result.async_response_gen():
+                accumulated_response += chunk
+                yield accumulated_response  # Accumulate and yield the updated response
+
+            # Save the accumulated response to the cache after streaming is complete
+            sm.save(query, accumulated_response)
+        else:
+            # Use RAG without streaming
+            response = rag(query).answer
+            yield response
+
+            # Save the response in the cache
+            sm.save(query, response)
 
 
 css = """
@@ -41,8 +67,8 @@ h1 {
 }
 #md {margin-top: 70px}
 """
-# Set up the Gradio interface
 
+# Set up the Gradio interface with a checkbox for enabling streaming
 with gr.Blocks(css=css) as app:
     gr.Markdown("# DailyMed RAG")
     with gr.Row():
@@ -54,9 +80,12 @@ with gr.Blocks(css=css) as app:
             gr.Markdown("### Ask any question about medication usage and get answers based on DailyMed data.",
                         elem_id="md")
 
+    enable_stream = gr.Checkbox(label="Enable Streaming", value=False)
     input_text = gr.Textbox(lines=2, label="Question", placeholder="Enter your question about a drug...")
     output_text = gr.Textbox(interactive=False, label="Response", lines=10)
     button = gr.Button("Submit")
-    button.click(fn=ask_med_question, inputs=input_text, outputs=output_text)
+
+    # Update the button click function to include the checkbox value
+    button.click(fn=ask_med_question, inputs=[input_text, enable_stream], outputs=output_text)
 
 app.launch()

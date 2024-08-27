@@ -1,21 +1,15 @@
 import asyncio
 from pathlib import Path
-from dotenv import load_dotenv
-from llama_index.core import PromptTemplate, Settings
-from llama_index.core.response_synthesizers import CompactAndRefine, TreeSummarize
+
+from llama_index.core import PromptTemplate
 from llama_index.core.postprocessor.llm_rerank import LLMRerank
-from llama_index.core.workflow import Context, Workflow, StartEvent, StopEvent, step
-from llama_index.llms.openai import OpenAI
-from llama_index.core.workflow import Event
+from llama_index.core.response_synthesizers import CompactAndRefine, TreeSummarize
 from llama_index.core.schema import NodeWithScore
+from llama_index.core.workflow import Context, Workflow, StartEvent, StopEvent, step
+from llama_index.core.workflow import Event
 from pydantic import BaseModel
 
 from medirag.index.local import DailyMedIndexer
-
-load_dotenv()
-
-# Set the LLM model
-Settings.llm = OpenAI(model='gpt-3.5-turbo')
 
 
 # Event classes
@@ -88,7 +82,6 @@ class RAGWorkflow(Workflow):
     @step
     async def retrieve(self, ctx: Context, ev: QueryEvent) -> RetrieverEvent | None:
         query = ctx.data["query"]
-
         print(f"Query the database with: {query}")
 
         if not self.indexer:
@@ -115,6 +108,13 @@ class RAGWorkflow(Workflow):
 
 # Main function
 async def main():
+    from llama_index.llms.openai import OpenAI
+    from llama_index.core import Settings
+    from dotenv import load_dotenv
+
+    load_dotenv()
+    Settings.llm = OpenAI(model='gpt-3.5-turbo')
+
     data_dir = Path("../../data")
     index_path = data_dir.joinpath("dm_spl_release_human_rx_part1")
 

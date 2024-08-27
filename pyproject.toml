@@ -27,6 +27,7 @@ python-dotenv = "^1.0.1"
 accelerate = "^0.33.0"
 gradio = "^4.42.0"
 pydantic = "^2.8.2"
+llama-index-agent-openai = "^0.3.0"
 
 
 

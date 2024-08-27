@@ -1,6 +1,7 @@
 from pathlib import Path
 import gradio as gr
 from dotenv import load_dotenv
+
 from medirag.cache.local import SemanticCaching
 from medirag.index.local import DailyMedIndexer
 from medirag.rag.qa import RAG, DailyMedRetrieve
@@ -43,14 +44,25 @@ async def ask_med_question(query, enable_stream):
         if enable_stream:
             # Stream response using RAGWorkflow
             result = await rag_workflow.run(query=query)
-            accumulated_response = ""
 
-            async for chunk in result.async_response_gen():
-                accumulated_response += chunk
-                yield accumulated_response  # Accumulate and yield the updated response
+            # Handle streaming response
+            if hasattr(result, 'async_response_gen'):
+                accumulated_response = ""
 
-            # Save the accumulated response to the cache after streaming is complete
-            sm.save(query, accumulated_response)
+                async for chunk in result.async_response_gen():
+                    accumulated_response += chunk
+                    yield accumulated_response  # Accumulate and yield the updated response
+
+                # Save the accumulated response to the cache after streaming is complete
+                sm.save(query, accumulated_response)
+            elif isinstance(result, str):
+                # Handle non-streaming string response
+                yield result
+                sm.save(query, result)
+            else:
+                # Handle unexpected response types
+                print("Unexpected response type:", result)
+                yield "An unexpected error occurred."
         else:
             # Use RAG without streaming
             response = rag(query).answer

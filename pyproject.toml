@@ -38,6 +38,7 @@ pytest-cov = "^5.0.0"
 types-requests = "^2.32.0.20240712"
 mypy = "^1.11.1"
 pytest-mock = "^3.14.0"
+pytest-asyncio = "^0.24.0"
 
 
 [tool.ruff]

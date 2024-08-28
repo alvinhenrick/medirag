@@ -31,7 +31,7 @@ sm.load_cache()
 
 # Initialize RAGWorkflow with indexer
 rag = RAG(k=5)
-rag_workflow = RAGWorkflow(indexer=indexer, timeout=60, top_k=5, top_n=3)
+rag_workflow = RAGWorkflow(indexer=indexer, timeout=60, with_reranker=False, top_k=5, top_n=3)
 
 
 async def ask_med_question(query, enable_stream):

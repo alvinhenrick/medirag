@@ -17,10 +17,6 @@ class RetrieverEvent(Event):
     nodes: list[NodeWithScore]
 
 
-class RerankEvent(Event):
-    nodes: list[NodeWithScore]
-
-
 class QueryEvent(Event):
     query: str
 
@@ -31,11 +27,13 @@ class Guardrail(BaseModel):
 
 # RAG Workflow Class
 class RAGWorkflow(Workflow):
-    def __init__(self, indexer: DailyMedIndexer, timeout: int = 60, top_k: int = 10, top_n: int = 5):
+    def __init__(self, indexer: DailyMedIndexer, timeout: int = 60,
+                 with_reranker=False, top_k: int = 10, top_n: int = 5):
         super().__init__(timeout=timeout)
         self.indexer = indexer
         self.top_k = top_k
         self.top_n = top_n
+        self.with_reranker = with_reranker
 
     @step
     def input_guardrail(self, ctx: Context, ev: StartEvent) -> QueryEvent | StopEvent:
@@ -89,18 +87,18 @@ class RAGWorkflow(Workflow):
             return None
 
         nodes = self.indexer.retrieve(query, top_k=self.top_k)
-        print(f"Retrieved {len(nodes)} nodes.")
-        return RetrieverEvent(nodes=nodes)
+
+        if self.with_reranker:
+            ranker = LLMRerank(choice_batch_size=self.top_n, top_n=self.top_n)
+            ranked_nodes = ranker.postprocess_nodes(nodes, query_str=query)
+            print(f"Reranked nodes to {len(ranked_nodes)}")
+            return RetrieverEvent(nodes=ranked_nodes)
+        else:
+            print(f"Retrieved {len(nodes)} nodes.")
+            return RetrieverEvent(nodes=nodes)
 
     @step
-    async def rerank(self, ctx: Context, ev: RetrieverEvent) -> RerankEvent:
-        ranker = LLMRerank(choice_batch_size=self.top_n, top_n=self.top_n)
-        new_nodes = ranker.postprocess_nodes(ev.nodes, query_str=ctx.data["query"])
-        print(f"Reranked nodes to {len(new_nodes)}")
-        return RerankEvent(nodes=new_nodes)
-
-    @step
-    async def synthesize(self, ctx: Context, ev: RerankEvent) -> StopEvent:
+    async def synthesize(self, ctx: Context, ev: RetrieverEvent) -> StopEvent:
         summarizer = CompactAndRefine(streaming=True, verbose=True)
         response = await summarizer.asynthesize(ctx.data["query"], nodes=ev.nodes)
         return StopEvent(result=response)

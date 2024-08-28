@@ -101,6 +101,7 @@ To get started with MedRAG:
 
 - [ ] Implement comprehensive observability tools to monitor and log system performance effectively.
 - [ ] Explore and implement semantic chunking to enhance retrieval performance and accuracy.
+- [ ] Build an comprehensive LLM evaluation with respect to Q&A on Drug Label Data.  
 
 ### Medium Priority
 

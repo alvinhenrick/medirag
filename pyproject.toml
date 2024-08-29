@@ -2,7 +2,7 @@
 name = "medirag"
 version = "0.1.0"
 description = ""
-authors = ["Alvin Henrick <alvin@equilibriumenergy.com>"]
+authors = ["Alvin Henrick <share.code@aol.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]

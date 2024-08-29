@@ -12,7 +12,7 @@ class DailyMedIndexer:
         self._initialize_embedding_model()
         self.session = kdbai.Session(api_key=os.getenv('KDBAI_API_KEY'),
                                      endpoint=os.getenv('KDBAI_ENDPOINT'))
-        self.vector_store = KDBAIVectorStore(self.session.table("daily_med"))
+        self.vector_store = KDBAIVectorStore(self.session.table("daily_med"), batch_size=1000)
         self.vector_store_index = None
 
     def _initialize_embedding_model(self):

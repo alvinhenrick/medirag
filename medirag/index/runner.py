@@ -1,9 +1,13 @@
-from medirag.core.document_processor import DailyMedDocumentProcessor
-from medirag.index.local import DailyMedIndexer
+from dotenv import load_dotenv
 
-download_sources = [
-    "https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part1.zip",
+from medirag.core.document_processor import DailyMedDocumentProcessor
+from medirag.index.kdbai import DailyMedIndexer
+
+load_dotenv()
+download_sources = [     "/home/alvin/PycharmProjects/medirag/download/dm_spl_release_human_rx_part1.zip"
 ]
+
+# "https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part1.zip",
 # "https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part2.zip",
 # "https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part3.zip",
 # "https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part4.zip",
@@ -23,4 +27,4 @@ documents = document_processor.load_documents()
 # Index and query documents
 indexer = DailyMedIndexer()
 indexer.load_index(documents=documents)
-indexer.save_index("./dm_spl_release_human_rx_part1")
+print("done")

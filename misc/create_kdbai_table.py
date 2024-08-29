@@ -14,7 +14,7 @@ schema = dict(
         dict(name="text", pytype="bytes"),
         dict(
             name="embedding",
-            vectorIndex=dict(type="flat", metric="L2", dims=768),
+            vectorIndex=dict(type="flat", metric="CS", dims=768),
         ),
     ]
 )

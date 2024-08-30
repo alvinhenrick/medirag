@@ -9,7 +9,7 @@ from llama_index.core.workflow import Context, Workflow, StartEvent, StopEvent, 
 from llama_index.core.workflow import Event
 from pydantic import BaseModel
 
-from medirag.index.local import DailyMedIndexer
+from medirag.index.kdbai import DailyMedIndexer
 
 
 # Event classes

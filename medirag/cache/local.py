@@ -68,3 +68,8 @@ class SemanticCaching:
         self.cache['response_text'].append(response)
         self.vector_index.add(embedding)
         self.save_cache()
+
+    def clear(self):
+        self.cache = {'questions': [], 'embeddings': [], 'response_text': []}
+        self.vector_index.reset()
+        self.save_cache()

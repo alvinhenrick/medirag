@@ -13,8 +13,7 @@ def semantic_caching():
 
 def test_save_and_lookup_in_cache(semantic_caching):
     # Clear any existing cache data
-    semantic_caching.cache = {'questions': [], 'embeddings': [], 'response_text': []}
-    semantic_caching.save_cache()
+    semantic_caching.clear()
 
     # Step 1: Lookup should return None for a question not in the cache
     initial_lookup = semantic_caching.lookup("What is the capital of France?")
@@ -29,5 +28,4 @@ def test_save_and_lookup_in_cache(semantic_caching):
     assert cached_response == "Paris"
 
     # Cleanup: Clear the cache after test
-    semantic_caching.cache = {'questions': [], 'embeddings': [], 'response_text': []}
-    semantic_caching.save_cache()
+    semantic_caching.clear()

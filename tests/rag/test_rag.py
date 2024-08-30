@@ -1,5 +1,5 @@
 from medirag.cache.local import SemanticCaching
-from medirag.index.local import DailyMedIndexer
+from medirag.index.kdbai import DailyMedIndexer
 from medirag.rag.qa import RAG, DailyMedRetrieve
 import dspy
 
@@ -23,7 +23,7 @@ def test_rag_with_example(data_dir):
     assert index_path.exists(), f"Directory not found: {index_path}"
 
     # Index and query documents
-    indexer = DailyMedIndexer(persist_dir=index_path)
+    indexer = DailyMedIndexer()
     indexer.load_index()
     rm = DailyMedRetrieve(daily_med_indexer=indexer)
 

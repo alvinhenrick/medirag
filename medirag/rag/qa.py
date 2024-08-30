@@ -47,8 +47,6 @@ class RAG(dspy.Module):
     def forward(self, question):
         context = self.retrieve(question).passages
 
-        print(context)
-
         in_gr = self.input_guardrail(user_input=question)
 
         if in_gr.should_block == 'Yes':

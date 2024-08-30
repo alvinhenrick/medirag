@@ -1,5 +1,5 @@
-from llama_index.core import VectorStoreIndex, StorageContext, Settings, load_index_from_storage
-from llama_index.core.node_parser import SentenceSplitter, SemanticSplitterNodeParser
+from llama_index.core import VectorStoreIndex, StorageContext, Settings
+from llama_index.core.node_parser import SemanticSplitterNodeParser
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.vector_stores.kdbai import KDBAIVectorStore
 import kdbai_client as kdbai
@@ -12,7 +12,7 @@ class DailyMedIndexer:
         self._initialize_embedding_model()
         self.session = kdbai.Session(api_key=os.getenv('KDBAI_API_KEY'),
                                      endpoint=os.getenv('KDBAI_ENDPOINT'))
-        self.vector_store = KDBAIVectorStore(self.session.table("daily_med"), batch_size=1000)
+        self.vector_store = KDBAIVectorStore(self.session.table("daily_med"), batch_size=100)
         self.vector_store_index = None
 
     def _initialize_embedding_model(self):

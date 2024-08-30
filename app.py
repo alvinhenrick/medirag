@@ -3,7 +3,7 @@ import gradio as gr
 from dotenv import load_dotenv
 
 from medirag.cache.local import SemanticCaching
-from medirag.index.local import DailyMedIndexer
+from medirag.index.kdbai import DailyMedIndexer
 from medirag.rag.qa import RAG, DailyMedRetrieve
 from medirag.rag.wf import RAGWorkflow
 from llama_index.llms.openai import OpenAI
@@ -16,7 +16,7 @@ load_dotenv()
 # Initialize the components
 data_dir = Path("data")
 index_path = data_dir.joinpath("dm_spl_release_human_rx_part1")
-indexer = DailyMedIndexer(persist_dir=index_path)
+indexer = DailyMedIndexer()
 indexer.load_index()
 rm = DailyMedRetrieve(daily_med_indexer=indexer)
 
@@ -31,7 +31,13 @@ sm.load_cache()
 
 # Initialize RAGWorkflow with indexer
 rag = RAG(k=5)
-rag_workflow = RAGWorkflow(indexer=indexer, timeout=60, with_reranker=False, top_k=5, top_n=3)
+streaming_rag = RAGWorkflow(indexer=indexer, timeout=60, with_reranker=False, top_k=5, top_n=3)
+
+
+def clear_cache():
+    sm.cache = {'questions': [], 'embeddings': [], 'response_text': []}
+    sm.save_cache()
+    gr.Info("Cache is cleared", duration=1)
 
 
 async def ask_med_question(query, enable_stream):
@@ -43,7 +49,7 @@ async def ask_med_question(query, enable_stream):
     else:
         if enable_stream:
             # Stream response using RAGWorkflow
-            result = await rag_workflow.run(query=query)
+            result = await streaming_rag.run(query=query)
 
             # Handle streaming response
             if hasattr(result, 'async_response_gen'):
@@ -91,13 +97,18 @@ with gr.Blocks(css=css) as app:
         with gr.Column(scale=10):
             gr.Markdown("### Ask any question about medication usage and get answers based on DailyMed data.",
                         elem_id="md")
+    with gr.Row():
+        enable_stream = gr.Checkbox(label="Enable Streaming", value=False)
+        clear_cache_bt = gr.Button("Clear Cache")
 
-    enable_stream = gr.Checkbox(label="Enable Streaming", value=False)
     input_text = gr.Textbox(lines=2, label="Question", placeholder="Enter your question about a drug...")
     output_text = gr.Textbox(interactive=False, label="Response", lines=10)
-    button = gr.Button("Submit")
+    submit_bt = gr.Button("Submit")
 
     # Update the button click function to include the checkbox value
-    button.click(fn=ask_med_question, inputs=[input_text, enable_stream], outputs=output_text)
+    submit_bt.click(fn=ask_med_question, inputs=[input_text, enable_stream], outputs=output_text)
+
+    # Update the button click function to include the checkbox value
+    clear_cache_bt.click(fn=clear_cache)
 
 app.launch()

@@ -1,7 +1,7 @@
 import pytest
 from dotenv import load_dotenv
 
-from medirag.index.local import DailyMedIndexer
+from medirag.index.kdbai import DailyMedIndexer
 from medirag.rag.wf import RAGWorkflow
 
 load_dotenv()  # take environment variables from .env.
@@ -15,10 +15,10 @@ async def test_wf_with_example(data_dir):
     assert index_path.exists(), f"Directory not found: {index_path}"
 
     # Initialize the indexer and load the index
-    indexer = DailyMedIndexer(persist_dir=index_path)
+    indexer = DailyMedIndexer()
     indexer.load_index()
 
-    top_k = 3  # Adjust the number of documents to retrieve
+    top_k = 6  # Adjust the number of documents to retrieve
     top_n = 3  # Adjust the number of top-ranked documents to select
 
     # Pass the indexer to the workflow
@@ -30,5 +30,5 @@ async def test_wf_with_example(data_dir):
     if hasattr(result, 'async_response_gen'):
         async for chunk in result.async_response_gen():
             accumulated_response += chunk
-
+    print(accumulated_response)
     assert len(accumulated_response) > 0

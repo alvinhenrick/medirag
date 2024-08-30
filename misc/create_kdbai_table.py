@@ -23,7 +23,8 @@ KDBAI_TABLE_NAME = "daily_med"
 
 # First ensure the table does not already exist
 if KDBAI_TABLE_NAME in session.list():
-    session.table(KDBAI_TABLE_NAME).drop()
-
-# Create the table
-table = session.create_table(KDBAI_TABLE_NAME, schema)
+    pass
+    # session.table(KDBAI_TABLE_NAME).drop()
+else:
+    # Create the table
+    table = session.create_table(KDBAI_TABLE_NAME, schema)

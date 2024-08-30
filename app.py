@@ -35,8 +35,7 @@ streaming_rag = RAGWorkflow(indexer=indexer, timeout=60, with_reranker=False, to
 
 
 def clear_cache():
-    sm.cache = {'questions': [], 'embeddings': [], 'response_text': []}
-    sm.save_cache()
+    sm.clear()
     gr.Info("Cache is cleared", duration=1)
 
 

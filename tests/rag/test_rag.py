@@ -9,7 +9,7 @@ load_dotenv()  # take environment variables from .env.
 
 
 def ask_med_question(sm, rag, query):
-    response = sm.lookup(question=query)
+    response = sm.lookup(question=query, cosine_threshold=0.9)
     if not response:
         response = rag(query).answer
         sm.save(query, response)

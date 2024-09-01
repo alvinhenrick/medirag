@@ -26,7 +26,7 @@ dspy.settings.configure(lm=turbo, rm=rm)
 Settings.llm = OpenAI(model='gpt-3.5-turbo')
 
 sm = SemanticCaching(model_name='sentence-transformers/all-mpnet-base-v2', dimension=768,
-                     json_file='rag_test_cache.json', cosine_threshold=.90)
+                     json_file='rag_test_cache.json')
 sm.load_cache()
 
 # Initialize RAGWorkflow with indexer
@@ -41,7 +41,7 @@ def clear_cache():
 
 async def ask_med_question(query, enable_stream):
     # Check the cache first
-    response = sm.lookup(question=query)
+    response = sm.lookup(question=query, cosine_threshold=0.9)
     if response:
         # Return cached response if found
         yield response

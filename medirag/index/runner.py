@@ -4,8 +4,8 @@ from medirag.core.document_processor import DailyMedDocumentProcessor
 from medirag.index.kdbai import DailyMedIndexer
 
 load_dotenv()
-download_sources = [     "/home/alvin/PycharmProjects/medirag/download/dm_spl_release_human_rx_part1.zip"
-]
+download_sources = ["/home/alvin/PycharmProjects/medirag/download/dm_spl_release_human_rx_part1.zip"
+                    ]
 
 # "https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part1.zip",
 # "https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part2.zip",

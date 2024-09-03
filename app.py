@@ -1,4 +1,4 @@
-from pathlib import Path
+import dspy
 import gradio as gr
 from dotenv import load_dotenv
 
@@ -9,13 +9,9 @@ from medirag.rag.wf import RAGWorkflow
 from llama_index.llms.openai import OpenAI
 from llama_index.core import Settings
 
-import dspy
-
 load_dotenv()
 
 # Initialize the components
-data_dir = Path("data")
-index_path = data_dir.joinpath("dm_spl_release_human_rx_part1")
 indexer = KDBAIDailyMedIndexer()
 indexer.load_index()
 rm = DailyMedRetrieve(indexer=indexer)
@@ -38,7 +34,7 @@ def clear_cache():
     gr.Info("Cache is cleared", duration=1)
 
 
-async def ask_med_question(query, enable_stream):
+async def ask_med_question(query: str, enable_stream: bool):
     # Check the cache first
     response = sm.lookup(question=query, cosine_threshold=0.9)
     if response:
@@ -96,7 +92,7 @@ with gr.Blocks(css=css) as app:
             gr.Markdown("### Ask any question about medication usage and get answers based on DailyMed data.",
                         elem_id="md")
     with gr.Row():
-        enable_stream = gr.Checkbox(label="Enable Streaming", value=False)
+        enable_stream_chk = gr.Checkbox(label="Enable Streaming", value=False)
         clear_cache_bt = gr.Button("Clear Cache")
 
     input_text = gr.Textbox(lines=2, label="Question", placeholder="Enter your question about a drug...")
@@ -104,7 +100,7 @@ with gr.Blocks(css=css) as app:
     submit_bt = gr.Button("Submit")
 
     # Update the button click function to include the checkbox value
-    submit_bt.click(fn=ask_med_question, inputs=[input_text, enable_stream], outputs=output_text)
+    submit_bt.click(fn=ask_med_question, inputs=[input_text, enable_stream_chk], outputs=output_text)
 
     # Update the button click function to include the checkbox value
     clear_cache_bt.click(fn=clear_cache)

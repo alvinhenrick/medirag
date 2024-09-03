@@ -16,6 +16,7 @@ class SemanticCaching:
     def __init__(self, model_name: str = 'sentence-transformers/all-mpnet-base-v2',
                  dimension: int = 768,
                  json_file: str = 'cache.json'):
+        self._cache = None
         self.model_name = model_name
         self.dimension = dimension
         self.json_file = json_file
@@ -29,7 +30,7 @@ class SemanticCaching:
             with open(self.json_file, 'r') as file:
                 data = json.load(file)
             # Create a SemanticCache instance from the data
-            self._cache = SemanticCache.parse_obj(data)
+            self._cache = SemanticCache.model_validate(data)
             # Convert embeddings to numpy arrays and add to FAISS
             for emb in self._cache.embeddings:
                 np_emb = np.array(emb, dtype=np.float32)

@@ -18,6 +18,7 @@ class SemanticCaching:
                  dimension: int = 768,
                  json_file: str = 'cache.json'):
 
+        self._cache = None
         self.model_name = model_name
         self.dimension = dimension
         self.json_file = json_file
@@ -33,18 +34,18 @@ class SemanticCaching:
                 data['embeddings'] = [np.array(e, dtype=np.float32) for e in data.get('embeddings', [])]
                 for emb in data['embeddings']:
                     self.vector_index.add(emb)
-                self.cache = SemanticCache(**data)
+                self._cache = SemanticCache(**data)
         except FileNotFoundError:
             logger.info("Cache file not found, initializing new cache.")
         except ValidationError as e:
             logger.error(f"Error in cache data structure: {e}")
         except Exception as e:
             logger.error(f"Failed to load or process cache: {e}")
-        self.cache = SemanticCache()
+        self._cache = SemanticCache()
 
     def save_cache(self):
         """Save the current cache to a JSON file."""
-        data = self.cache.model_dump_json()
+        data = self._cache.model_dump_json()
         with open(self.json_file, 'w') as file:
             json.dump(data, file)
         logger.info("Cache saved successfully.")
@@ -57,23 +58,23 @@ class SemanticCaching:
 
         if D[0][0] >= cosine_threshold:
             row_id = I[0][0]
-            return self.cache.response_text[row_id]
+            return self._cache.response_text[row_id]
         return None
 
     def save(self, question: str, response: str):
         """Save a response to the cache."""
         embedding = self.encoder.encode([question], show_progress_bar=False)
         faiss.normalize_L2(embedding)
-        self.cache.questions.append(question)
-        self.cache.embeddings.append(embedding.tolist())
-        self.cache.response_text.append(response)
+        self._cache.questions.append(question)
+        self._cache.embeddings.append(embedding.tolist())
+        self._cache.response_text.append(response)
         self.vector_index.add(embedding)
         self.save_cache()
         logger.info("New response saved to cache.")
 
     def clear(self):
         """Clear the cache."""
-        self.cache = SemanticCache()
+        self._cache = SemanticCache()
         self.vector_index.reset()
         self.save_cache()
         logger.info("Cache cleared.")

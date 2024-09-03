@@ -1,27 +1,28 @@
-from typing import Union, List, Optional
+from typing import Optional
 
 import dspy
 from dsp import dotdict
 
 from medirag.guardrail.input import InputGuardrail
 from medirag.guardrail.output import OutputGuardrail
-from medirag.index.local import DailyMedIndexer
+from medirag.index.common import Indexer
 
 
 class DailyMedRetrieve(dspy.Retrieve):
-    def __init__(self, daily_med_indexer: DailyMedIndexer, k: int = 3):
-        super().__init__(k=k)  # Correctly called at the beginning
-        self.daily_med_indexer = daily_med_indexer
+    def __init__(self, indexer: Indexer, k: int = 3):
+        super().__init__(k=k)
+        self.indexer = indexer
 
     def forward(
             self,
-            query_or_queries: Union[str, List[str]],
+            query_or_queries: str | list[str],
             k: Optional[int] = None,
             by_prob: bool = True,
             with_metadata: bool = False,
             **kwargs,
     ) -> dspy.Prediction:
-        results = self.daily_med_indexer.retrieve(query=query_or_queries, top_k=k)
+        actual_k = k if k is not None else self.k
+        results = self.indexer.retrieve(query=query_or_queries, top_k=actual_k)
         return [dotdict({"long_text": result.text}) for result in results]  # noqa
 
 

@@ -1,6 +1,3 @@
-import asyncio
-from pathlib import Path
-
 from llama_index.core import PromptTemplate
 from llama_index.core.postprocessor.llm_rerank import LLMRerank
 from llama_index.core.response_synthesizers import CompactAndRefine, TreeSummarize
@@ -9,7 +6,7 @@ from llama_index.core.workflow import Context, Workflow, StartEvent, StopEvent, 
 from llama_index.core.workflow import Event
 from pydantic import BaseModel
 
-from medirag.index.kdbai import DailyMedIndexer
+from medirag.index.common import Indexer
 
 
 # Event classes
@@ -27,7 +24,7 @@ class Guardrail(BaseModel):
 
 # RAG Workflow Class
 class RAGWorkflow(Workflow):
-    def __init__(self, indexer: DailyMedIndexer, timeout: int = 60,
+    def __init__(self, indexer: Indexer, timeout: int = 60,
                  with_reranker=False, top_k: int = 10, top_n: int = 5):
         super().__init__(timeout=timeout)
         self.indexer = indexer
@@ -71,7 +68,7 @@ class RAGWorkflow(Workflow):
             """
         )
         input_guard_prompt = PromptTemplate(input_guard_template)
-        summarizer = TreeSummarize(summary_template=input_guard_prompt, output_cls=Guardrail)
+        summarizer = TreeSummarize(summary_template=input_guard_prompt, output_cls=Guardrail)  # noqa
 
         response = summarizer.get_response(query, text_chunks=[])
         return StopEvent(
@@ -102,35 +99,3 @@ class RAGWorkflow(Workflow):
         summarizer = CompactAndRefine(streaming=True, verbose=True)
         response = await summarizer.asynthesize(ctx.data["query"], nodes=ev.nodes)
         return StopEvent(result=response)
-
-
-# Main function
-async def main():
-    from llama_index.llms.openai import OpenAI
-    from llama_index.core import Settings
-    from dotenv import load_dotenv
-
-    load_dotenv()
-    Settings.llm = OpenAI(model='gpt-3.5-turbo')
-
-    data_dir = Path("../../data")
-    index_path = data_dir.joinpath("dm_spl_release_human_rx_part1")
-
-    # Initialize the indexer and load the index
-    indexer = DailyMedIndexer(persist_dir=index_path)
-    indexer.load_index()
-
-    top_k = 10  # Adjust the number of documents to retrieve
-    top_n = 5  # Adjust the number of top-ranked documents to select
-
-    # Pass the indexer to the workflow
-    workflow = RAGWorkflow(indexer=indexer, timeout=60, top_k=top_k, top_n=top_n)
-    query = "What information do you have about Clopidogrel?"
-
-    result = await workflow.run(query=query)
-    async for chunk in result.async_response_gen():
-        print(chunk, end="", flush=True)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())

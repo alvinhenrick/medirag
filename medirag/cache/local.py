@@ -13,41 +13,43 @@ class SemanticCache(BaseModel):
 
 
 class SemanticCaching:
-    def __init__(self,
-                 model_name: str = 'sentence-transformers/all-mpnet-base-v2',
+    def __init__(self, model_name: str = 'sentence-transformers/all-mpnet-base-v2',
                  dimension: int = 768,
                  json_file: str = 'cache.json'):
-
-        self._cache = None
         self.model_name = model_name
         self.dimension = dimension
         self.json_file = json_file
         self.vector_index = faiss.IndexFlatIP(self.dimension)
-        self.encoder = SentenceTransformer(self.model_name)
-        self.load_cache()
+        self.encoder = SentenceTransformer(model_name)
+        self.load_cache()  # Automatically attempt to load the cache upon initialization
 
     def load_cache(self) -> None:
         """Load cache from a JSON file."""
         try:
             with open(self.json_file, 'r') as file:
                 data = json.load(file)
-                data['embeddings'] = [np.array(e, dtype=np.float32) for e in data.get('embeddings', [])]
-                for emb in data['embeddings']:
-                    self.vector_index.add(emb)
-                self._cache = SemanticCache(**data)
+            # Create a SemanticCache instance from the data
+            self._cache = SemanticCache.parse_obj(data)
+            # Convert embeddings to numpy arrays and add to FAISS
+            for emb in self._cache.embeddings:
+                np_emb = np.array(emb, dtype=np.float32)
+                faiss.normalize_L2(np_emb.reshape(1, -1))  # Normalize before adding to FAISS
+                self.vector_index.add(np_emb.reshape(1, -1))  # Reshape for FAISS
         except FileNotFoundError:
             logger.info("Cache file not found, initializing new cache.")
+            self._cache = SemanticCache()
         except ValidationError as e:
             logger.error(f"Error in cache data structure: {e}")
+            self._cache = SemanticCache()
         except Exception as e:
             logger.error(f"Failed to load or process cache: {e}")
-        self._cache = SemanticCache()
+            self._cache = SemanticCache()
 
     def save_cache(self):
         """Save the current cache to a JSON file."""
-        data = self._cache.model_dump_json()
+        data = self._cache.dict()
         with open(self.json_file, 'w') as file:
-            json.dump(data, file)
+            json.dump(data, file, indent=4)  # Add indentation for better readability
         logger.info("Cache saved successfully.")
 
     def lookup(self, question: str, cosine_threshold: float = 0.7) -> str | None:
@@ -66,7 +68,7 @@ class SemanticCaching:
         embedding = self.encoder.encode([question], show_progress_bar=False)
         faiss.normalize_L2(embedding)
         self._cache.questions.append(question)
-        self._cache.embeddings.append(embedding.tolist())
+        self._cache.embeddings.append(embedding[0].tolist())  # Ensure embedding is flattened
         self._cache.response_text.append(response)
         self.vector_index.add(embedding)
         self.save_cache()

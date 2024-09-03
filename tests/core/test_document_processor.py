@@ -1,6 +1,6 @@
 from medirag.core.data_manager import DailyMedDataManager
 from medirag.core.document_processor import DailyMedDocumentProcessor
-from medirag.index.local import DailyMedIndexer
+from medirag.index.local import LocalIndexer
 
 
 def test_document_processor(data_dir):
@@ -23,14 +23,11 @@ def test_document_processor(data_dir):
     assert len(documents) == 5
 
     # Index and query documents
-    indexer = DailyMedIndexer()
-    indexer.load_index(documents=documents)
-    # indexer.save_index(persist_dir="../data/daily_bio_bert_indexed")
+    indexer = LocalIndexer(persist_dir="../data/daily_bio_bert_indexed")
+    indexer.load_index(documents=None)
+    # indexer.save_index()
 
     query = "What are the key things about the drug's usage?"
     results = indexer.retrieve(query)
 
     assert len(results) > 0
-
-    for result in results:
-        print(result.text)

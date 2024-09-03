@@ -3,7 +3,7 @@ import gradio as gr
 from dotenv import load_dotenv
 
 from medirag.cache.local import SemanticCaching
-from medirag.index.kdbai import DailyMedIndexer
+from medirag.index.kdbai import KDBAIDailyMedIndexer
 from medirag.rag.qa import RAG, DailyMedRetrieve
 from medirag.rag.wf import RAGWorkflow
 from llama_index.llms.openai import OpenAI
@@ -16,9 +16,9 @@ load_dotenv()
 # Initialize the components
 data_dir = Path("data")
 index_path = data_dir.joinpath("dm_spl_release_human_rx_part1")
-indexer = DailyMedIndexer()
+indexer = KDBAIDailyMedIndexer()
 indexer.load_index()
-rm = DailyMedRetrieve(daily_med_indexer=indexer)
+rm = DailyMedRetrieve(indexer=indexer)
 
 turbo = dspy.OpenAI(model='gpt-3.5-turbo', max_tokens=4000)
 dspy.settings.configure(lm=turbo, rm=rm)
@@ -27,7 +27,6 @@ Settings.llm = OpenAI(model='gpt-3.5-turbo')
 
 sm = SemanticCaching(model_name='sentence-transformers/all-mpnet-base-v2', dimension=768,
                      json_file='rag_test_cache.json')
-sm.load_cache()
 
 # Initialize RAGWorkflow with indexer
 rag = RAG(k=5)

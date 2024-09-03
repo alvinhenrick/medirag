@@ -1,7 +1,11 @@
 import pytest
 from dotenv import load_dotenv
+from llama_index.llms.openai import OpenAI
+from llama_index.core import Settings
 
-from medirag.index.kdbai import DailyMedIndexer
+# from medirag.index.kdbai import KDBAIDailyMedIndexer
+from medirag.index.local import LocalIndexer
+
 from medirag.rag.wf import RAGWorkflow
 
 load_dotenv()  # take environment variables from .env.
@@ -15,11 +19,12 @@ async def test_wf_with_example(data_dir):
     assert index_path.exists(), f"Directory not found: {index_path}"
 
     # Initialize the indexer and load the index
-    indexer = DailyMedIndexer()
+    indexer = LocalIndexer(persist_dir=index_path)
     indexer.load_index()
 
     top_k = 6  # Adjust the number of documents to retrieve
     top_n = 3  # Adjust the number of top-ranked documents to select
+    Settings.llm = OpenAI(model="gpt-3.5-turbo")
 
     # Pass the indexer to the workflow
     workflow = RAGWorkflow(indexer=indexer, timeout=60, top_k=top_k, top_n=top_n)

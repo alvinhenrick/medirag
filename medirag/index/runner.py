@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 
 from medirag.core.document_processor import DailyMedDocumentProcessor
-from medirag.index.kdbai import DailyMedIndexer
+from medirag.index.kdbai import KDBAIDailyMedIndexer
 
 load_dotenv()
 download_sources = ["/home/alvin/PycharmProjects/medirag/download/dm_spl_release_human_rx_part1.zip"
@@ -25,6 +25,6 @@ document_processor = DailyMedDocumentProcessor(extracted_dir=extracted_dir)
 documents = document_processor.load_documents()
 
 # Index and query documents
-indexer = DailyMedIndexer()
+indexer = KDBAIDailyMedIndexer()
 indexer.load_index(documents=documents)
 print("done")

@@ -26,9 +26,7 @@ dspy.settings.configure(lm=llm, rm=rm)
 # Set the LLM model for LlamaIndex
 Settings.llm = OpenAI(model="gpt-3.5-turbo")
 
-sm = LocalSemanticCache(
-    model_name="sentence-transformers/all-mpnet-base-v2", dimension=768, json_file="rag_test_cache.json"
-)
+sm = LocalSemanticCache(model_name="sentence-transformers/all-mpnet-base-v2", dimension=768, json_file="rag_cache.json")
 
 # Initialize RAGWorkflow with indexer
 dspy_rag = DspyRAG(k=5)

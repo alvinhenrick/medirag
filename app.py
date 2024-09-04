@@ -16,13 +16,14 @@ indexer = KDBAIDailyMedIndexer()
 indexer.load_index()
 rm = DailyMedRetrieve(indexer=indexer)
 
-turbo = dspy.OpenAI(model='gpt-3.5-turbo', max_tokens=4000)
+turbo = dspy.OpenAI(model="gpt-3.5-turbo", max_tokens=4000)
 dspy.settings.configure(lm=turbo, rm=rm)
 # Set the LLM model
-Settings.llm = OpenAI(model='gpt-3.5-turbo')
+Settings.llm = OpenAI(model="gpt-3.5-turbo")
 
-sm = SemanticCaching(model_name='sentence-transformers/all-mpnet-base-v2', dimension=768,
-                     json_file='rag_test_cache.json')
+sm = SemanticCaching(
+    model_name="sentence-transformers/all-mpnet-base-v2", dimension=768, json_file="rag_test_cache.json"
+)
 
 # Initialize RAGWorkflow with indexer
 rag = RAG(k=5)
@@ -46,7 +47,7 @@ async def ask_med_question(query: str, enable_stream: bool):
             result = await streaming_rag.run(query=query)
 
             # Handle streaming response
-            if hasattr(result, 'async_response_gen'):
+            if hasattr(result, "async_response_gen"):
                 accumulated_response = ""
 
                 async for chunk in result.async_response_gen():
@@ -69,7 +70,8 @@ async def ask_med_question(query: str, enable_stream: bool):
             yield response
 
             # Save the response in the cache
-            sm.save(query, response)
+            if response:
+                sm.save(query, response)
 
 
 css = """
@@ -85,12 +87,19 @@ with gr.Blocks(css=css) as app:
     gr.Markdown("# DailyMed RAG")
     with gr.Row():
         with gr.Column(scale=1, min_width=100):
-            gr.Image("doc/images/MediRag.png", width=100, min_width=100,
-                     show_label=False, show_download_button=False, show_share_button=False,
-                     show_fullscreen_button=False)
+            gr.Image(
+                "doc/images/MediRag.png",
+                width=100,
+                min_width=100,
+                show_label=False,
+                show_download_button=False,
+                show_share_button=False,
+                show_fullscreen_button=False,
+            )
         with gr.Column(scale=10):
-            gr.Markdown("### Ask any question about medication usage and get answers based on DailyMed data.",
-                        elem_id="md")
+            gr.Markdown(
+                "### Ask any question about medication usage and get answers based on DailyMed data.", elem_id="md"
+            )
     with gr.Row():
         enable_stream_chk = gr.Checkbox(label="Enable Streaming", value=False)
         clear_cache_bt = gr.Button("Clear Cache")

@@ -32,7 +32,7 @@ async def test_wf_with_example(data_dir):
 
     result = await workflow.run(query=query)
     accumulated_response = ""
-    if hasattr(result, 'async_response_gen'):
+    if hasattr(result, "async_response_gen"):
         async for chunk in result.async_response_gen():
             accumulated_response += chunk
     print(accumulated_response)

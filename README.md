@@ -48,29 +48,34 @@ receive clear, understandable answers.
 ![Architecture](doc/images/MediRAg.drawio.png)
 
 1. **Question-Answering Bot and Website**:
-    - Users can interact with a bot on the website to ask drug-related questions.
-    - The bot retrieves information from drug guides and patient information leaflets to provide clear and concise
-      answers.
+
+   - Users can interact with a bot on the website to ask drug-related questions.
+   - The bot retrieves information from drug guides and patient information leaflets to provide clear and concise
+     answers.
 
 2. **Input and Output Guardrails**:
-    - Implemented to filter inappropriate or potentially harmful queries.
-    - Ensures the bot's responses are accurate and aligned with medical guidelines.
+
+   - Implemented to filter inappropriate or potentially harmful queries.
+   - Ensures the bot's responses are accurate and aligned with medical guidelines.
 
 3. **DSPy Prompting**:
-    - Uses DSPy to dynamically generate prompts that guide the retrieval process.
-    - Helps in crafting responses that are both contextually relevant and easy to understand.
+
+   - Uses DSPy to dynamically generate prompts that guide the retrieval process.
+   - Helps in crafting responses that are both contextually relevant and easy to understand.
 
 4. **LlamaIndex streaming workflows**:
-    - Uses LlamaIndex to construct the streaming workflow.
-    - Helps in crafting responses that are both contextually relevant and easy to understand.
-   
+
+   - Uses LlamaIndex to construct the streaming workflow.
+   - Helps in crafting responses that are both contextually relevant and easy to understand.
+
 5. **Retrieval-Augmented Generation (RAG) with Semantic Caching**:
-    - Utilizes a RAG model to combine real-time retrieval with language generation.
-    - Semantic caching improves the response time by reusing answers to similar questions.
+
+   - Utilizes a RAG model to combine real-time retrieval with language generation.
+   - Semantic caching improves the response time by reusing answers to similar questions.
 
 6. **Vector Database**:
-    - Employs a vector database for fast and effective retrieval of information.
-    - Enhances the bot's ability to search and retrieve relevant content from large datasets.
+   - Employs a vector database for fast and effective retrieval of information.
+   - Enhances the bot's ability to search and retrieve relevant content from large datasets.
 
 ## Getting Started
 
@@ -81,10 +86,10 @@ To get started with MedRAG:
    git clone https://github.com/alvinhenrick/medirag.git
    ```
 2. Create `.env` and insert your tokens
-    ```bash
-        HF_TOKEN=Your token
-        OPENAI_API_KEY=Your token
-    ```
+   ```bash
+       HF_TOKEN=Your token
+       OPENAI_API_KEY=Your token
+   ```
 3. Install the required dependencies:
    ```bash
    cd medirag
@@ -101,18 +106,18 @@ To get started with MedRAG:
 
 - [ ] Implement comprehensive observability tools to monitor and log system performance effectively.
 - [ ] Explore and implement semantic chunking to enhance retrieval performance and accuracy.
-- [ ] Build an comprehensive LLM evaluation with respect to Q&A on Drug Label Data.  
+- [ ] Build an comprehensive LLM evaluation with respect to Q&A on Drug Label Data.
 
 ### Medium Priority
 
 - [ ] Experiment with different embeddings and other models to enhance retrieval performance and accuracy.
 - [ ] Experiment with different embeddings and other models to improve the accuracy and relevance of bot responses.
 - [ ] Index all five DailyMed datasets to ensure complete data coverage and retrieval capabilities.
-    - [x] https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part1.zip
-    - [ ] https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part2.zip
-    - [ ] https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part3.zip
-    - [ ] https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part4.zip
-    - [ ] https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part5.zip
+  - [x] https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part1.zip
+  - [ ] https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part2.zip
+  - [ ] https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part3.zip
+  - [ ] https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part4.zip
+  - [ ] https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part5.zip
 
 ### Low Priority
 

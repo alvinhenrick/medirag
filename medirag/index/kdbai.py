@@ -6,12 +6,11 @@ import kdbai_client as kdbai
 import os
 from loguru import logger
 
-from medirag.index.common import Indexer
+from medirag.index.abc import Indexer
 
 
 class KDBAIDailyMedIndexer(Indexer):
-    def __init__(self, model_name="nuvocare/WikiMedical_sent_biobert",
-                 table_name="daily_med"):
+    def __init__(self, model_name="nuvocare/WikiMedical_sent_biobert", table_name="daily_med"):
         self.model_name = model_name
         self.table_name = table_name
         self._initialize_embedding_model()
@@ -27,8 +26,8 @@ class KDBAIDailyMedIndexer(Indexer):
     @staticmethod
     def _initialize_kdbai_session():
         # Initialize KDBAI session
-        api_key = os.getenv('KDBAI_API_KEY')
-        endpoint = os.getenv('KDBAI_ENDPOINT')
+        api_key = os.getenv("KDBAI_API_KEY")
+        endpoint = os.getenv("KDBAI_ENDPOINT")
         session = kdbai.Session(api_key=api_key, endpoint=endpoint)
         logger.debug("KDBAI session initialized.")
         return session
@@ -51,12 +50,11 @@ class KDBAIDailyMedIndexer(Indexer):
     def _build_index_from_documents(self, documents):
         logger.info("Building index from documents...")
         storage_context = StorageContext.from_defaults(vector_store=self.vector_store)
-        chunk = SemanticSplitterNodeParser(buffer_size=1, breakpoint_percentile_threshold=95,
-                                           embed_model=Settings.embed_model)
+        chunk = SemanticSplitterNodeParser(
+            buffer_size=1, breakpoint_percentile_threshold=95, embed_model=Settings.embed_model
+        )
         self.vector_store_index = VectorStoreIndex.from_documents(
-            documents,
-            storage_context=storage_context,
-            transformations=[chunk]
+            documents, storage_context=storage_context, transformations=[chunk]
         )
         return self.vector_store_index
 

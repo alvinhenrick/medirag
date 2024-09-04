@@ -7,9 +7,11 @@ from loguru import logger
 
 
 def normalize_text(text):
-    """Normalize the text by lowercasing, removing extra spaces, and stripping unnecessary characters."""
+    """
+    Normalize the text by lowercasing, removing extra spaces, and stripping unnecessary characters.
+    """
     text = text.lower()
-    text = re.sub(r'\s+', ' ', text)
+    text = re.sub(r"\s+", " ", text)
     return text.strip()
 
 
@@ -24,7 +26,9 @@ def format_output_string(drug_name, sections_data):
 
 
 def extract_names(manufactured_product):
-    """Extracts both the main and generic drug names from the product."""
+    """
+    Extracts both the main and generic drug names from the product.
+    """
     drug_names = set()
     name_tag = manufactured_product.find("name")
     if name_tag:
@@ -38,7 +42,9 @@ def extract_names(manufactured_product):
 
 
 def extract_drug_and_generic_names(structured_body):
-    """Extracts all drug names from the structured body of the XML."""
+    """
+    Extracts all drug names from the structured body of the XML.
+    """
     drug_names = set()
     for manufactured_product in structured_body.find_all("manufacturedProduct"):
         drug_names.update(extract_names(manufactured_product))
@@ -46,7 +52,9 @@ def extract_drug_and_generic_names(structured_body):
 
 
 def extract_section_data(section):
-    """Extracts title and paragraphs data from a section."""
+    """
+    Extracts title and paragraphs data from a section.
+    """
     title_tag = section.find("title")
     if not title_tag:
         return None, []
@@ -56,7 +64,9 @@ def extract_section_data(section):
 
 
 def compile_sections_data(components):
-    """Compiles data from all sections within components."""
+    """
+    Compiles data from all sections within components.
+    """
     sections_data = {}
     for component in components:
         for section in component.find_all("section"):

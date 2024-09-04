@@ -4,12 +4,11 @@ from llama_index.core import VectorStoreIndex, StorageContext, Settings, load_in
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.vector_stores.faiss import FaissVectorStore
 
-from medirag.index.common import Indexer
+from medirag.index.abc import Indexer
 
 
 class LocalIndexer(Indexer):
-    def __init__(self, model_name="nuvocare/WikiMedical_sent_biobert",
-                 dimension=768, persist_dir="./storage"):
+    def __init__(self, model_name="nuvocare/WikiMedical_sent_biobert", dimension=768, persist_dir="./storage"):
         self.vector_store_index = None
         self.model_name = model_name
         self.dimension = dimension

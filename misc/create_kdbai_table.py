@@ -1,12 +1,11 @@
 import os
 
 from dotenv import load_dotenv
+import kdbai_client as kdbai
 
 load_dotenv()
 
-import kdbai_client as kdbai
-
-session = kdbai.Session(api_key=os.getenv('KDBAI_API_KEY'), endpoint=os.getenv('KDBAI_ENDPOINT'))
+session = kdbai.Session(api_key=os.getenv("KDBAI_API_KEY"), endpoint=os.getenv("KDBAI_ENDPOINT"))
 
 schema = dict(
     columns=[

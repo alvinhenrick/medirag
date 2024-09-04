@@ -17,7 +17,9 @@ class DailyMedDataManager:
         logger.info("Initialized DailyMedDataManager with temporary directories.")
 
     def download_zip(self, source):
-        """Downloads a zip file from a URL or processes a local file path."""
+        """
+        Downloads a zip file from a URL or processes a local file path.
+        """
         try:
             if source.startswith("http://") or source.startswith("https://"):
                 logger.info(f"Downloading and processing: {source}")
@@ -38,7 +40,9 @@ class DailyMedDataManager:
             return None
 
     def extract_zip(self, zip_path):
-        """Extracts the zip file into the common subdirectory."""
+        """
+        Extracts the zip file into the common subdirectory.
+        """
         try:
             with zipfile.ZipFile(zip_path, "r") as zip_ref:
                 zip_ref.extractall(self.extracted_dir)
@@ -47,18 +51,24 @@ class DailyMedDataManager:
             logger.error(f"Failed to extract {zip_path}: {e}")
 
     def download_and_extract_zip(self):
-        """Downloads and extracts all zip files."""
+        """
+        Downloads and extracts all zip files.
+        """
         for source in self.download_sources:
             zip_path = self.download_zip(source)
             if zip_path:
                 self.extract_zip(zip_path)
 
     def get_extracted_dir(self):
-        """Returns the directory containing extracted files."""
+        """
+        Returns the directory containing extracted files.
+        """
         return self.extracted_dir
 
     def cleanup(self):
-        """Cleans up the temporary directory."""
+        """
+        Cleans up the temporary directory.
+        """
         try:
             shutil.rmtree(self.temp_dir)
             logger.info("Cleaned up temporary directories successfully.")

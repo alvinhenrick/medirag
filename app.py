@@ -2,7 +2,7 @@ import dspy
 import gradio as gr
 from dotenv import load_dotenv
 
-from medirag.cache.local import SemanticCaching
+from medirag.cache.local import LocalSemanticCache
 from medirag.index.kdbai import KDBAIDailyMedIndexer
 from medirag.rag.qa import RAG, DailyMedRetrieve
 from medirag.rag.wf import RAGWorkflow
@@ -21,7 +21,7 @@ dspy.settings.configure(lm=turbo, rm=rm)
 # Set the LLM model
 Settings.llm = OpenAI(model="gpt-3.5-turbo")
 
-sm = SemanticCaching(
+sm = LocalSemanticCache(
     model_name="sentence-transformers/all-mpnet-base-v2", dimension=768, json_file="rag_test_cache.json"
 )
 

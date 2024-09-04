@@ -1,4 +1,4 @@
-from medirag.cache.local import SemanticCaching
+from medirag.cache.local import LocalSemanticCache
 from medirag.index.local import LocalIndexer
 
 # from medirag.index.kdbai import KDBAIDailyMedIndexer
@@ -36,10 +36,9 @@ def test_rag_with_example(data_dir):
 
     rag = RAG(k=3)
 
-    sm = SemanticCaching(
+    sm = LocalSemanticCache(
         model_name="sentence-transformers/all-mpnet-base-v2", dimension=768, json_file="rag_test_cache.json"
     )
-    # sm.load_cache()
 
     result1 = ask_med_question(sm, rag, query)
     print(result1)

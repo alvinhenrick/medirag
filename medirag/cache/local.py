@@ -5,14 +5,16 @@ from pydantic import BaseModel, ValidationError
 from sentence_transformers import SentenceTransformer
 from loguru import logger
 
+from medirag.cache.abc import SemanticCache
 
-class SemanticCache(BaseModel):
+
+class SemanticCacheModel(BaseModel):
     questions: list[str] = []
     embeddings: list[list[float]] = []
     response_text: list[str] = []
 
 
-class SemanticCaching:
+class LocalSemanticCache(SemanticCache):
     def __init__(
         self,
         model_name: str = "sentence-transformers/all-mpnet-base-v2",
@@ -24,14 +26,14 @@ class SemanticCaching:
         self.json_file = json_file
         self.vector_index = faiss.IndexFlatIP(self.dimension)
         self.encoder = SentenceTransformer(model_name)
-        self._cache = SemanticCache()  # Initialize with a default SemanticCache to avoid NoneType issues
+        self._cache = SemanticCacheModel()  # Initialize with a default SemanticCache to avoid NoneType issues
         self.load_cache()
 
     def load_cache(self) -> None:
         try:
             with open(self.json_file, "r") as file:
                 data = json.load(file)
-            self._cache = SemanticCache(**data)  # Use unpacking to handle Pydantic validation
+            self._cache = SemanticCacheModel(**data)  # Use unpacking to handle Pydantic validation
             for emb in self._cache.embeddings:
                 np_emb = np.array(emb, dtype=np.float32)
                 faiss.normalize_L2(np_emb.reshape(1, -1))
@@ -71,7 +73,7 @@ class SemanticCaching:
         logger.info("New response saved to cache.")
 
     def clear(self):
-        self._cache = SemanticCache()
+        self._cache = SemanticCacheModel()
         self.vector_index.reset()
         self.save_cache()
         logger.info("Cache cleared.")

@@ -1,3 +1,5 @@
+import pytest
+
 from medirag.cache.local import LocalSemanticCache
 from medirag.index.local import LocalIndexer
 
@@ -5,20 +7,11 @@ from medirag.index.local import LocalIndexer
 from medirag.rag.dspy import DspyRAG, DailyMedRetrieve
 import dspy
 
-from dotenv import load_dotenv
-
-load_dotenv()  # take environment variables from .env.
+from medirag.rag.qa_rag import QuestionAnswerRunner
 
 
-def ask_med_question(sm, rag, query):
-    response = sm.lookup(question=query, cosine_threshold=0.9)
-    if not response:
-        response = rag(query).answer
-        sm.save(query, response)
-    return response
-
-
-def test_rag_with_example(data_dir):
+@pytest.mark.asyncio
+async def test_rag_with_example(data_dir):
     # Example usage:
     index_path = data_dir.joinpath("daily_bio_bert_indexed")
     # Ensure the path is correct and the directory exists
@@ -30,18 +23,28 @@ def test_rag_with_example(data_dir):
     rm = DailyMedRetrieve(indexer=indexer)
 
     query = "What information do you have about Clopidogrel?"
-    turbo = dspy.OpenAI(model="gpt-3.5-turbo")
+    turbo = dspy.OpenAI(model="gpt-3.5-turbo", max_tokens=4000)
 
     dspy.settings.configure(lm=turbo, rm=rm)
 
     rag = DspyRAG(k=3)
 
     sm = LocalSemanticCache(
-        model_name="sentence-transformers/all-mpnet-base-v2", dimension=768, json_file="rag_test_cache.json"
+        model_name="sentence-transformers/all-mpnet-base-v2", dimension=768, json_file="test_dspy_rag.json"
     )
 
-    result1 = ask_med_question(sm, rag, query)
-    print(result1)
-    result2 = ask_med_question(sm, rag, query)
+    qa = QuestionAnswerRunner(sm=sm, rag=rag)
 
-    assert result1 == result2
+    response_1 = qa.ask(query, enable_stream=False)
+    result_1 = ""
+    async for chunk in response_1:
+        result_1 += chunk
+
+    response_2 = qa.ask(query, enable_stream=False)
+    result_2 = ""
+    async for chunk in response_2:
+        result_2 += chunk
+
+    assert result_1 == result_2
+
+    sm.clear()

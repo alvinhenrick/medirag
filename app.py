@@ -9,16 +9,21 @@ from medirag.rag.llama_index import WorkflowRAG
 from llama_index.llms.openai import OpenAI
 from llama_index.core import Settings
 
+from medirag.rag.qa_rag import QuestionAnswerRunner
+
+# Load Env
 load_dotenv()
 
-# Initialize the components
+# Initialize the Retriever
 indexer = KDBAIDailyMedIndexer()
 indexer.load_index()
 rm = DailyMedRetrieve(indexer=indexer)
 
-turbo = dspy.OpenAI(model="gpt-3.5-turbo", max_tokens=4000)
-dspy.settings.configure(lm=turbo, rm=rm)
-# Set the LLM model
+# Set the LLM model for DSPy
+llm = dspy.OpenAI(model="gpt-3.5-turbo", max_tokens=4000)
+dspy.settings.configure(lm=llm, rm=rm)
+
+# Set the LLM model for LlamaIndex
 Settings.llm = OpenAI(model="gpt-3.5-turbo")
 
 sm = LocalSemanticCache(
@@ -26,8 +31,8 @@ sm = LocalSemanticCache(
 )
 
 # Initialize RAGWorkflow with indexer
-rag = DspyRAG(k=5)
-streaming_rag = WorkflowRAG(indexer=indexer, timeout=60, with_reranker=False, top_k=5, top_n=3)
+dspy_rag = DspyRAG(k=5)
+llama_index_rag = WorkflowRAG(indexer=indexer, timeout=60, with_reranker=False, top_k=5, top_n=3)
 
 
 def clear_cache():
@@ -36,42 +41,17 @@ def clear_cache():
 
 
 async def ask_med_question(query: str, enable_stream: bool):
-    # Check the cache first
-    response = sm.lookup(question=query, cosine_threshold=0.9)
-    if response:
-        # Return cached response if found
-        yield response
+    if enable_stream:
+        qa = QuestionAnswerRunner(sm=sm, rag=llama_index_rag)
     else:
-        if enable_stream:
-            # Stream response using RAGWorkflow
-            result = await streaming_rag.run(query=query)
+        qa = QuestionAnswerRunner(sm=sm, rag=dspy_rag)
+    accumulated_response = ""
 
-            # Handle streaming response
-            if hasattr(result, "async_response_gen"):
-                accumulated_response = ""
+    response = qa.ask(query, enable_stream=enable_stream)
 
-                async for chunk in result.async_response_gen():
-                    accumulated_response += chunk
-                    yield accumulated_response  # Accumulate and yield the updated response
-
-                # Save the accumulated response to the cache after streaming is complete
-                sm.save(query, accumulated_response)
-            elif isinstance(result, str):
-                # Handle non-streaming string response
-                yield result
-                sm.save(query, result)
-            else:
-                # Handle unexpected response types
-                print("Unexpected response type:", result)
-                yield "An unexpected error occurred."
-        else:
-            # Use RAG without streaming
-            response = rag(query).answer
-            yield response
-
-            # Save the response in the cache
-            if response:
-                sm.save(query, response)
+    async for chunk in response:
+        accumulated_response += chunk
+        yield accumulated_response
 
 
 css = """

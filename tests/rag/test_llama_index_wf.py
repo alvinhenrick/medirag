@@ -6,7 +6,7 @@ from llama_index.core import Settings
 # from medirag.index.kdbai import KDBAIDailyMedIndexer
 from medirag.index.local import LocalIndexer
 
-from medirag.rag.wf import RAGWorkflow
+from medirag.rag.llama_index import WorkflowRAG
 
 load_dotenv()  # take environment variables from .env.
 
@@ -27,7 +27,7 @@ async def test_wf_with_example(data_dir):
     Settings.llm = OpenAI(model="gpt-3.5-turbo")
 
     # Pass the indexer to the workflow
-    workflow = RAGWorkflow(indexer=indexer, timeout=60, top_k=top_k, top_n=top_n)
+    workflow = WorkflowRAG(indexer=indexer, timeout=60, top_k=top_k, top_n=top_n)
     query = "What information do you have about Clopidogrel?"
 
     result = await workflow.run(query=query)

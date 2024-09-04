@@ -37,7 +37,7 @@ class GenerateAnswer(dspy.Signature):
     answer = dspy.OutputField(desc="Answer with detailed summary")
 
 
-class RAG(dspy.Module):
+class DspyRAG(dspy.Module):
     def __init__(self, k: int = 3):
         super().__init__()
         self.input_guardrail = dspy.TypedPredictor(InputGuardrail)

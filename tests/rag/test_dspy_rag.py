@@ -2,7 +2,7 @@ from medirag.cache.local import LocalSemanticCache
 from medirag.index.local import LocalIndexer
 
 # from medirag.index.kdbai import KDBAIDailyMedIndexer
-from medirag.rag.qa import RAG, DailyMedRetrieve
+from medirag.rag.dspy import DspyRAG, DailyMedRetrieve
 import dspy
 
 from dotenv import load_dotenv
@@ -34,7 +34,7 @@ def test_rag_with_example(data_dir):
 
     dspy.settings.configure(lm=turbo, rm=rm)
 
-    rag = RAG(k=3)
+    rag = DspyRAG(k=3)
 
     sm = LocalSemanticCache(
         model_name="sentence-transformers/all-mpnet-base-v2", dimension=768, json_file="rag_test_cache.json"

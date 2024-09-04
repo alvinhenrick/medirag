@@ -4,8 +4,8 @@ from dotenv import load_dotenv
 
 from medirag.cache.local import LocalSemanticCache
 from medirag.index.kdbai import KDBAIDailyMedIndexer
-from medirag.rag.qa import RAG, DailyMedRetrieve
-from medirag.rag.wf import RAGWorkflow
+from medirag.rag.dspy import DspyRAG, DailyMedRetrieve
+from medirag.rag.llama_index import WorkflowRAG
 from llama_index.llms.openai import OpenAI
 from llama_index.core import Settings
 
@@ -26,8 +26,8 @@ sm = LocalSemanticCache(
 )
 
 # Initialize RAGWorkflow with indexer
-rag = RAG(k=5)
-streaming_rag = RAGWorkflow(indexer=indexer, timeout=60, with_reranker=False, top_k=5, top_n=3)
+rag = DspyRAG(k=5)
+streaming_rag = WorkflowRAG(indexer=indexer, timeout=60, with_reranker=False, top_k=5, top_n=3)
 
 
 def clear_cache():

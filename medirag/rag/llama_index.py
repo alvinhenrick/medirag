@@ -23,7 +23,7 @@ class Guardrail(BaseModel):
 
 
 # RAG Workflow Class
-class RAGWorkflow(Workflow):
+class WorkflowRAG(Workflow):
     def __init__(self, indexer: Indexer, timeout: int = 60, with_reranker=False, top_k: int = 10, top_n: int = 5):
         super().__init__(timeout=timeout)
         self.indexer = indexer

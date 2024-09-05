@@ -1,5 +1,6 @@
 from llama_index.core import VectorStoreIndex, StorageContext, Settings
 from llama_index.core.node_parser import SemanticSplitterNodeParser
+from llama_index.core.postprocessor import LLMRerank
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.vector_stores.kdbai import KDBAIVectorStore
 import kdbai_client as kdbai
@@ -67,7 +68,7 @@ class KDBAIDailyMedIndexer(Indexer):
             logger.error(f"Failed to load index from storage context: {e}")
             raise
 
-    def retrieve(self, query, top_k=3):
+    def retrieve(self, query, top_k: int = 3, with_reranker: bool = False):
         """
         Retrieve the top-k results based on the query.
         """
@@ -75,5 +76,14 @@ class KDBAIDailyMedIndexer(Indexer):
             logger.error("Vector store is not initialized. Please index documents first.")
             raise ValueError("Vector store is not initialized. Please index documents first.")
 
-        retriever = self.vector_store_index.as_retriever(similarity_top_k=top_k)
-        return retriever.retrieve(query)
+        retriever = self.vector_store_index.as_retriever(similarity_top_k=(top_k * 3 if with_reranker else top_k))
+        nodes = retriever.retrieve(query)
+        logger.info(f"Retrieved {len(nodes)} nodes.")
+
+        if with_reranker:
+            ranker = LLMRerank(choice_batch_size=top_k, top_n=top_k)
+            ranked_nodes = ranker.postprocess_nodes(nodes, query_str=query)
+            logger.info(f"Reranked nodes to {len(ranked_nodes)}")
+            return ranked_nodes
+        else:
+            return nodes

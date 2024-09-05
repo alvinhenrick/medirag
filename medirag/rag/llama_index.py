@@ -1,5 +1,4 @@
 from llama_index.core import PromptTemplate
-from llama_index.core.postprocessor.llm_rerank import LLMRerank
 from llama_index.core.response_synthesizers import CompactAndRefine, TreeSummarize
 from llama_index.core.schema import NodeWithScore
 from llama_index.core.workflow import Context, Workflow, StartEvent, StopEvent, step
@@ -7,6 +6,8 @@ from llama_index.core.workflow import Event
 from pydantic import BaseModel
 
 from medirag.index.abc import Indexer
+
+from loguru import logger
 
 
 # Event classes
@@ -24,7 +25,7 @@ class Guardrail(BaseModel):
 
 # RAG Workflow Class
 class WorkflowRAG(Workflow):
-    def __init__(self, indexer: Indexer, timeout: int = 60, top_k: int = 5, with_reranker=False):
+    def __init__(self, indexer: Indexer, timeout: int = 60, top_k: int = 3, with_reranker=False):
         super().__init__(timeout=timeout)
         self.indexer = indexer
         self.top_k = top_k
@@ -76,22 +77,14 @@ class WorkflowRAG(Workflow):
     @step
     async def retrieve(self, ctx: Context, ev: QueryEvent) -> RetrieverEvent | None:
         query = ctx.data["query"]
-        print(f"Query the database with: {query}")
+        logger.info(f"Query the database with: {query}")
 
         if not self.indexer:
-            print("Index is empty, load some documents before querying!")
+            logger.info("Index is empty, load some documents before querying!")
             return None
 
-        nodes = self.indexer.retrieve(query, top_k=(self.top_k * 3 if self.with_reranker else self.top_k))
-
-        if self.with_reranker:
-            ranker = LLMRerank(choice_batch_size=self.top_k, top_n=self.top_k)
-            ranked_nodes = ranker.postprocess_nodes(nodes, query_str=query)
-            print(f"Reranked nodes to {len(ranked_nodes)}")
-            return RetrieverEvent(nodes=ranked_nodes)
-        else:
-            print(f"Retrieved {len(nodes)} nodes.")
-            return RetrieverEvent(nodes=nodes)
+        nodes = self.indexer.retrieve(query, top_k=self.top_k, with_reranker=self.with_reranker)
+        return RetrieverEvent(nodes=nodes)
 
     @step
     async def synthesize(self, ctx: Context, ev: RetrieverEvent) -> StopEvent:

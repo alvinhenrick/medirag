@@ -19,10 +19,11 @@ class DailyMedRetrieve(dspy.Retrieve):
         k: Optional[int] = None,
         by_prob: bool = True,
         with_metadata: bool = False,
+        with_reranker: bool = False,
         **kwargs,
     ) -> dspy.Prediction:
         actual_k = k if k is not None else self.k
-        results = self.indexer.retrieve(query=query_or_queries, top_k=actual_k)
+        results = self.indexer.retrieve(query=query_or_queries, top_k=actual_k, with_reranker=with_reranker)
         return [dotdict({"long_text": result.text}) for result in results]  # noqa
 
 
@@ -38,16 +39,17 @@ class GenerateAnswer(dspy.Signature):
 
 
 class DspyRAG(dspy.Module):
-    def __init__(self, k: int = 3):
+    def __init__(self, k: int = 3, with_reranker: bool = False):
         super().__init__()
         self.input_guardrail = dspy.TypedPredictor(InputGuardrail)
         self.output_guardrail = dspy.TypedPredictor(OutputGuardrail)
 
         self.retrieve = dspy.Retrieve(k=k)
+        self.with_reranker = with_reranker
         self.generate_answer = dspy.ChainOfThought(GenerateAnswer)
 
     def forward(self, question):
-        context = self.retrieve(question).passages
+        context = self.retrieve(question, with_reranker=self.with_reranker).passages
 
         in_gr = self.input_guardrail(user_input=question)
 

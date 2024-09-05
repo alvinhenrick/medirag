@@ -1,3 +1,4 @@
+from llama_index.core.postprocessor import LLMRerank
 from loguru import logger
 import faiss
 from llama_index.core import VectorStoreIndex, StorageContext, Settings, load_index_from_storage
@@ -67,9 +68,19 @@ class LocalIndexer(Indexer):
         self.vector_store_index.storage_context.persist(self.persist_dir)
         logger.info(f"Index saved to {self.persist_dir}.")
 
-    def retrieve(self, query, top_k=3):
+    def retrieve(self, query, top_k: int = 3, with_reranker: bool = False):
         if not self.vector_store_index:
             logger.error("Index is not initialized. Please build or load an index first.")
             raise ValueError("Index is not initialized.")
-        retriever = self.vector_store_index.as_retriever(similarity_top_k=top_k)
-        return retriever.retrieve(query)
+
+        retriever = self.vector_store_index.as_retriever(similarity_top_k=(top_k * 3 if with_reranker else top_k))
+        nodes = retriever.retrieve(query)
+        logger.info(f"Retrieved {len(nodes)} nodes.")
+
+        if with_reranker:
+            ranker = LLMRerank(choice_batch_size=top_k, top_n=top_k)
+            ranked_nodes = ranker.postprocess_nodes(nodes, query_str=query)
+            logger.info(f"Reranked nodes to {len(ranked_nodes)}")
+            return ranked_nodes
+        else:
+            return nodes

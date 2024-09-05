@@ -28,20 +28,18 @@ Settings.llm = OpenAI(model="gpt-3.5-turbo")
 
 sm = LocalSemanticCache(model_name="sentence-transformers/all-mpnet-base-v2", dimension=768, json_file="rag_cache.json")
 
-# Initialize RAGWorkflow with indexer
-dspy_rag = DspyRAG(k=5)
-llama_index_rag = WorkflowRAG(indexer=indexer, timeout=60, top_k=5, with_reranker=False)
-
 
 def clear_cache():
     sm.clear()
     gr.Info("Cache is cleared", duration=1)
 
 
-async def ask_med_question(query: str, enable_stream: bool):
+async def ask_med_question(query: str, enable_stream: bool, enable_reranking: bool, top_k: int):
     if enable_stream:
+        llama_index_rag = WorkflowRAG(indexer=indexer, timeout=60, top_k=top_k, with_reranker=enable_reranking)
         qa = QuestionAnswerRunner(sm=sm, rag=llama_index_rag)
     else:
+        dspy_rag = DspyRAG(k=top_k, with_reranker=enable_reranking)
         qa = QuestionAnswerRunner(sm=sm, rag=dspy_rag)
     accumulated_response = ""
 
@@ -80,6 +78,14 @@ with gr.Blocks(css=css) as app:
             )
     with gr.Row():
         enable_stream_chk = gr.Checkbox(label="Enable Streaming", value=False)
+        enable_reranking_chk = gr.Checkbox(label="Enable ReRanking", value=False)
+        top_k_dropdown = gr.Dropdown(
+            [3, 5, 7],
+            label="Top K",
+            info="Documents to Retrieve!",
+            min_width=100,
+            value=3,
+        )
         clear_cache_bt = gr.Button("Clear Cache")
 
     input_text = gr.Textbox(lines=2, label="Question", placeholder="Enter your question about a drug...")
@@ -87,7 +93,11 @@ with gr.Blocks(css=css) as app:
     submit_bt = gr.Button("Submit")
 
     # Update the button click function to include the checkbox value
-    submit_bt.click(fn=ask_med_question, inputs=[input_text, enable_stream_chk], outputs=output_text)
+    submit_bt.click(
+        fn=ask_med_question,
+        inputs=[input_text, enable_stream_chk, enable_reranking_chk, top_k_dropdown],
+        outputs=output_text,
+    )
 
     # Update the button click function to include the checkbox value
     clear_cache_bt.click(fn=clear_cache)

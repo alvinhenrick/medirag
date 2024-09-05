@@ -30,7 +30,7 @@ sm = LocalSemanticCache(model_name="sentence-transformers/all-mpnet-base-v2", di
 
 # Initialize RAGWorkflow with indexer
 dspy_rag = DspyRAG(k=5)
-llama_index_rag = WorkflowRAG(indexer=indexer, timeout=60, with_reranker=False, top_k=5, top_n=3)
+llama_index_rag = WorkflowRAG(indexer=indexer, timeout=60, top_k=5, with_reranker=False)
 
 
 def clear_cache():

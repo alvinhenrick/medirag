@@ -22,12 +22,11 @@ async def test_wf_with_example(data_dir):
     indexer = LocalIndexer(persist_dir=index_path)
     indexer.load_index()
 
-    top_k = 6  # Adjust the number of documents to retrieve
-    top_n = 3  # Adjust the number of top-ranked documents to select
+    top_k = 3  # Adjust the number of documents to retrieve
     Settings.llm = OpenAI(model="gpt-3.5-turbo")
 
     # Pass the indexer to the workflow
-    rag = WorkflowRAG(indexer=indexer, timeout=60, top_k=top_k, top_n=top_n)
+    rag = WorkflowRAG(indexer=indexer, timeout=60, top_k=top_k)
 
     sm = LocalSemanticCache(
         model_name="sentence-transformers/all-mpnet-base-v2", dimension=768, json_file="test_llama_index_wf.json"

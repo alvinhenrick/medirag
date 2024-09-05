@@ -24,11 +24,10 @@ class Guardrail(BaseModel):
 
 # RAG Workflow Class
 class WorkflowRAG(Workflow):
-    def __init__(self, indexer: Indexer, timeout: int = 60, with_reranker=False, top_k: int = 10, top_n: int = 5):
+    def __init__(self, indexer: Indexer, timeout: int = 60, top_k: int = 5, with_reranker=False):
         super().__init__(timeout=timeout)
         self.indexer = indexer
         self.top_k = top_k
-        self.top_n = top_n
         self.with_reranker = with_reranker
 
     @step
@@ -83,10 +82,10 @@ class WorkflowRAG(Workflow):
             print("Index is empty, load some documents before querying!")
             return None
 
-        nodes = self.indexer.retrieve(query, top_k=self.top_k)
+        nodes = self.indexer.retrieve(query, top_k=(self.top_k * 3 if self.with_reranker else self.top_k))
 
         if self.with_reranker:
-            ranker = LLMRerank(choice_batch_size=self.top_n, top_n=self.top_n)
+            ranker = LLMRerank(choice_batch_size=self.top_k, top_n=self.top_k)
             ranked_nodes = ranker.postprocess_nodes(nodes, query_str=query)
             print(f"Reranked nodes to {len(ranked_nodes)}")
             return RetrieverEvent(nodes=ranked_nodes)

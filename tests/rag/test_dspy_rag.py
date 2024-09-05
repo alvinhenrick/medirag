@@ -25,9 +25,10 @@ async def test_rag_with_example(data_dir):
     query = "What information do you have about Clopidogrel?"
     turbo = dspy.OpenAI(model="gpt-3.5-turbo", max_tokens=4000)
 
+    top_k = 3  # Adjust the number of documents to retrieve
     dspy.settings.configure(lm=turbo, rm=rm)
 
-    rag = DspyRAG(k=3)
+    rag = DspyRAG(k=top_k)
 
     sm = LocalSemanticCache(
         model_name="sentence-transformers/all-mpnet-base-v2", dimension=768, json_file="test_dspy_rag.json"

@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="http://www.fda.gov/oc/datacouncil/stylesheets/spl/spl.xsl" type="text/xsl"?><document xmlns="urn:hl7-org:v3" xmlns:voc="http://www.hl7.org/v3/voc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:hl7-org:v3 http://www.fda.gov/oc/datacouncil/schemas/spl/spl.xsd">
+<id root="CA568793-C00B-DEA7-02D6-6CEEE47FD5D0" />
+<code code="34391-3" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="HUMAN PRESCRIPTION DRUG LABELING" />
+<title mediaType="text/x-hl7-title+xml">UROBIOTIC<sup>&#174;</sup>-250<br />CAPSULES</title>
+<effectiveTime value="20051214" />
+<setId root="BE27854A-A805-4300-9729-ACCD1B7F226F" />
+<versionNumber value="1" />
+<author>
+<time />
+<assignedEntity>
+<representedOrganization>
+<name>Roerig</name>
+</representedOrganization>
+</assignedEntity>
+</author>
+<component>
+<structuredBody>
+<component>
+<section>
+<id root="2CC176A5-A939-40A1-60CE-C288A4E4C9AE" />
+<effectiveTime value="20051214" />
+<subject>
+<manufacturedProduct>
+<manufacturedMedicine>
+<code code="0049-0920" codeSystem="2.16.840.1.113883.6.69" codeSystemName="FDA" displayName="NDC" />
+<name>Urobiotic</name>
+<formCode code="C25158" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="CAPSULE" />
+<activeIngredient>
+<quantity>
+<numerator unit="mg" value="250">
+<translation code="C28253" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="MILLIGRAM" value="250" />
+</numerator>
+<denominator value="1">
+<translation code="C48480" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="CAPSULE" value="1" />
+</denominator>
+</quantity>
+<activeIngredientSubstance>
+<code code="4U7K4N52ZM" codeSystem="2.16.840.1.113883.4.9" codeSystemName="FDA SRS" />
+<name>oxytetracycline hydrochloride</name>
+<activeMoiety>
+<activeMoiety>
+<code code="X20I9EN955" codeSystem="2.16.840.1.113883.4.9" codeSystemName="FDA SRS" />
+<name>oxytetracycline</name>
+</activeMoiety>
+</activeMoiety>
+<activeMoiety>
+<activeMoiety>
+<code code="X20I9EN955" codeSystem="2.16.840.1.113883.4.9" codeSystemName="FDA SRS" />
+<name>oxytetracycline</name>
+</activeMoiety>
+</activeMoiety>
+<activeMoiety>
+<activeMoiety>
+<code code="X20I9EN955" codeSystem="2.16.840.1.113883.4.9" codeSystemName="FDA SRS" />
+<name>oxytetracycline</name>
+</activeMoiety>
+</activeMoiety>
+</activeIngredientSubstance>
+</activeIngredient>
+<activeIngredient>
+<quantity>
+<numerator unit="mg" value="250">
+<translation code="C28253" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="MILLIGRAM" value="250" />
+</numerator>
+<denominator value="1">
+<translation code="C48480" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="CAPSULE" value="1" />
+</denominator>
+</quantity>
+<activeIngredientSubstance>
+<code code="25W8454H16" codeSystem="2.16.840.1.113883.4.9" codeSystemName="FDA SRS" />
+<name>sulfamethizole</name>
+<activeMoiety>
+<activeMoiety>
+<code code="25W8454H16" codeSystem="2.16.840.1.113883.4.9" codeSystemName="FDA SRS" />
+<name>sulfamethizole</name>
+</activeMoiety>
+</activeMoiety>
+<activeMoiety>
+<activeMoiety>
+<code code="25W8454H16" codeSystem="2.16.840.1.113883.4.9" codeSystemName="FDA SRS" />
+<name>sulfamethizole</name>
+</activeMoiety>
+</activeMoiety>
+<activeMoiety>
+<activeMoiety>
+<code code="25W8454H16" codeSystem="2.16.840.1.113883.4.9" codeSystemName="FDA SRS" />
+<name>sulfamethizole</name>
+</activeMoiety>
+</activeMoiety>
+</activeIngredientSubstance>
+</activeIngredient>
+<activeIngredient>
+<quantity>
+<numerator unit="mg" value="50">
+<translation code="C28253" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="MILLIGRAM" value="50" />
+</numerator>
+<denominator value="1">
+<translation code="C48480" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="CAPSULE" value="1" />
+</denominator>
+</quantity>
+<activeIngredientSubstance>
+<code code="2IUY41693Z" codeSystem="2.16.840.1.113883.4.9" codeSystemName="FDA SRS" />
+<name>phenazopyridine hydrochloride</name>
+<activeMoiety>
+<activeMoiety>
+<name>phenazopyridine</name>
+</activeMoiety>
+</activeMoiety>
+<activeMoiety>
+<activeMoiety>
+<name>phenazopyridine</name>
+</activeMoiety>
+</activeMoiety>
+<activeMoiety>
+<activeMoiety>
+<name>phenazopyridine</name>
+</activeMoiety>
+</activeMoiety>
+</activeIngredientSubstance>
+</activeIngredient>
+<asEntityWithGeneric>
+<genericMedicine>
+<name>oxytetracycline hydrochloride, sulfamethizole and phenazopyridine hydrochloride</name>
+</genericMedicine>
+</asEntityWithGeneric>
+<inactiveIngredient>
+<inactiveIngredientSubstance>
+<name>gelatin</name>
+</inactiveIngredientSubstance>
+</inactiveIngredient>
+<inactiveIngredient>
+<inactiveIngredientSubstance>
+<name>Green 3</name>
+</inactiveIngredientSubstance>
+</inactiveIngredient>
+<inactiveIngredient>
+<inactiveIngredientSubstance>
+<name>Yellow 6</name>
+</inactiveIngredientSubstance>
+</inactiveIngredient>
+<inactiveIngredient>
+<inactiveIngredientSubstance>
+<name>Yellow 10</name>
+</inactiveIngredientSubstance>
+</inactiveIngredient>
+<inactiveIngredient>
+<inactiveIngredientSubstance>
+<code code="70097M6I30" codeSystem="2.16.840.1.113883.4.9" codeSystemName="FDA SRS" />
+<name>magnesium stearate</name>
+</inactiveIngredientSubstance>
+</inactiveIngredient>
+<inactiveIngredient>
+<inactiveIngredientSubstance>
+<code code="368GB5141J" codeSystem="2.16.840.1.113883.4.9" codeSystemName="FDA SRS" />
+<name>sodium lauryl sulfate</name>
+</inactiveIngredientSubstance>
+</inactiveIngredient>
+<inactiveIngredient>
+<inactiveIngredientSubstance>
+<name>starch</name>
+</inactiveIngredientSubstance>
+</inactiveIngredient>
+<asContent>
+<quantity>
+<numerator value="50">
+<translation code="C48480" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="CAPSULE" value="50" />
+</numerator>
+<denominator value="1">
+<translation value="1" />
+</denominator>
+</quantity>
+<containerPackagedMedicine>
+<code code="0049-0920-50" codeSystem="2.16.840.1.113883.6.69" codeSystemName="FDA" displayName="NDC" />
+<formCode code="C43169" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="BOTTLE" />
+</containerPackagedMedicine>
+</asContent>
+<asContent>
+<quantity>
+<numerator value="100">
+<translation code="C48480" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="CAPSULE" value="100" />
+</numerator>
+<denominator value="1">
+<translation value="1" />
+</denominator>
+</quantity>
+<containerPackagedMedicine>
+<code code="0049-0920-41" codeSystem="2.16.840.1.113883.6.69" codeSystemName="FDA" displayName="NDC" />
+<formCode code="C43233" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="PACKAGE" />
+</containerPackagedMedicine>
+</asContent>
+</manufacturedMedicine>
+<subjectOf>
+<characteristic classCode="OBS">
+<code code="SPLCOLOR" codeSystem="2.16.840.1.113883.1.11.19255" />
+<value code="C48329" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="GREEN" xsi:type="CE"><originalText>Yellow</originalText></value>
+</characteristic>
+</subjectOf>
+<subjectOf>
+<characteristic classCode="OBS">
+<code code="SPLCOLOR" codeSystem="2.16.840.1.113883.1.11.19255" />
+<value code="C48330" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="YELLOW" xsi:type="CE"><originalText>Yellow</originalText></value>
+</characteristic>
+</subjectOf>
+<subjectOf>
+<characteristic classCode="OBS">
+<code code="SPLSCORE" codeSystem="2.16.840.1.113883.1.11.19255" />
+<value value="1" xsi:type="INT" />
+</characteristic>
+</subjectOf>
+<subjectOf>
+<characteristic classCode="OBS">
+<code code="SPLSHAPE" codeSystem="2.16.840.1.113883.1.11.19255" />
+<value code="C48336" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="CAPSULE" xsi:type="CE"><originalText>Capsule</originalText></value>
+</characteristic>
+</subjectOf>
+<subjectOf>
+<characteristic classCode="OBS">
+<code code="SPLSIZE" codeSystem="2.16.840.1.113883.1.11.19255" />
+<value unit="mm" value="22" xsi:type="PQ" />
+</characteristic>
+</subjectOf>
+<subjectOf>
+<characteristic classCode="OBS">
+<code code="SPLCOATING" codeSystem="2.16.840.1.113883.1.11.19255" />
+<value value="false" xsi:type="BL" />
+</characteristic>
+</subjectOf>
+<subjectOf>
+<characteristic classCode="OBS">
+<code code="SPLSYMBOL" codeSystem="2.16.840.1.113883.1.11.19255" />
+<value value="false" xsi:type="BL" />
+</characteristic>
+</subjectOf>
+<subjectOf>
+<characteristic classCode="OBS">
+<code code="SPLIMPRINT" codeSystem="2.16.840.1.113883.1.11.19255" />
+<value xsi:type="ST">Pfizer;092</value>
+</characteristic>
+</subjectOf>
+<consumedIn>
+<substanceAdministration>
+<routeCode code="C38288" codeSystem="2.16.840.1.113883.3.26.1.1" displayName="ORAL" />
+</substanceAdministration>
+</consumedIn>
+</manufacturedProduct>
+</subject>
+</section>
+</component>
+<component>
+<section>
+<id root="32D16253-D4B9-1FD9-F1E2-3FEBD1086026" />
+<code code="42229-5" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="SPL UNCLASSIFIED SECTION" />
+<title mediaType="text/x-hl7-title+xml" />
+<text><paragraph><content styleCode="bold">Each capsule contains</content></paragraph><paragraph><content styleCode="bold">Oxytetracycline hydrochloride equivalent to. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .&#160;250 mg<br />&#160;&#160;oxytetracycline</content></paragraph><paragraph><content styleCode="bold">Sulfamethizole . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .&#160;250 mg</content></paragraph><paragraph><content styleCode="bold">Phenazopyridine hydrochloride . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .&#160;50 mg</content></paragraph><paragraph>Inert ingredients in the formulation are: hard gelatin capsules (which may contain Green 3,
+Yellow 6, Yellow 10 and other inert ingredients); magnesium stearate; sodium lauryl sulfate; starch.</paragraph></text>
+<effectiveTime value="20051214" />
+</section>
+</component>
+<component>
+<section>
+<id root="65ABD626-58F7-3ECD-65CF-CC8D39E210CE" />
+<code code="42229-5" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="SPL UNCLASSIFIED SECTION" />
+<title mediaType="text/x-hl7-title+xml">ACTIONS</title>
+<text><paragraph>Urobiotic-250 is a product designed for use specifically in urinary tract infections.</paragraph><paragraph>Terramycin<sup>&#174;</sup> (oxytetracycline HCl) is a widely used antibiotic with clinically proved activity against gram-positive and gram-negative bacteria, rickettsiae, spirochetes, large viruses, and certain protozoa. Terramycin is well tolerated and well absorbed after oral administration. It diffuses readily through the placenta and is present in the fetal circulation. It diffuses into the pleural fluid, and under some circumstances, into the cerebrospinal fluid. Oxytetracycline HCl appears to be concentrated in the hepatic system and is excreted in the bile. It is excreted in the urine and in the feces, in high concentrations, in a biologically active form.</paragraph><paragraph>Sulfamethizole is a chemotherapeutic agent active against a number of important gram-positive and gram-negative bacteria. This sulfonamide is well absorbed, has a low degree of acetylation, and is extremely soluble. Because of these features and its rapid renal excretion, sulfamethizole has a low order of toxicity and provides prompt and high concentrations of the active drug in the urinary tract.</paragraph><paragraph>Phenazopyridine is an orally absorbed agent which produces prompt and effective local analgesia and relief of urinary symptoms by virtue of its rapid excretion in the urinary tract. These effects are confined to the genitourinary system and are not accompanied by generalized sedation or narcosis.</paragraph></text>
+<effectiveTime value="20051214" />
+</section>
+</component>
+<component>
+<section>
+<id root="D0F5F9E1-4A52-E7D8-10CA-662005B39751" />
+<code code="34067-9" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="INDICATIONS &amp; USAGE SECTION" />
+<title mediaType="text/x-hl7-title+xml">INDICATIONS </title>
+<text><paragraph><content styleCode="bold">Based on a review of this drug by the National Academy of Sciences-National Research Council and/or other information, FDA has classified the indications as follows:</content></paragraph><paragraph><content styleCode="bold">"Lacking substantial evidence of effectiveness as a fixed combination":</content></paragraph><paragraph>Urobiotic-250 is indicated in the therapy of a number of genitourinary infections caused by susceptible organisms. These infections include the following: pyelonephritis, pyelitis, ureteritis, cystitis, prostatitis, and urethritis. </paragraph><paragraph>Since both Terramycin and sulfamethizole provide effective levels in blood, tissue, and urine, Urobiotic-250 provides a multiple antimicrobial approach at the site of infection. Both antibacterial components are active against the most common urinary pathogens, including<content styleCode="italics"> Escherichia coli, Pseudomonas aeruginosa, Aerobacter aerogenes, Streptococcus faecalis, Streptococcus hemolyticus</content>, and <content styleCode="italics">Micrococcus pyogenes</content>. Urobiotic-250 is particularly useful in the treatment of infections caused by bacteria more sensitive to the combination than to either component alone. The combination is also of value in those cases with mixed infections, and in those instances where the causative organism is unknown pending laboratory isolation. </paragraph><paragraph><content styleCode="bold">Final classification of the less than effective indications requires further investigation. Clinical studies to substantiate the efficacy of Urobiotic 250 are ongoing. Completion of these ongoing studies will provide data for final classification of these indications</content>. </paragraph></text>
+<effectiveTime value="20051214" />
+</section>
+</component>
+<component>
+<section>
+<id root="12E7473E-4D01-7546-C3A6-49C04FA1B982" />
+<code code="34070-3" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="CONTRAINDICATIONS SECTION" />
+<title mediaType="text/x-hl7-title+xml">CONTRAINDICATIONS</title>
+<text><paragraph>This drug is contraindicated in individuals who have shown hypersensitivity to any of its components.</paragraph><paragraph>This drug, because of the sulfonamide component, should not be used in patients with a history of sulfonamide sensitivities, and in pregnant females at term.</paragraph></text>
+<effectiveTime value="20051214" />
+</section>
+</component>
+<component>
+<section>
+<id root="A6461077-A4EE-5397-E79C-15577001C62C" />
+<code code="34071-1" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="WARNINGS SECTION" />
+<title mediaType="text/x-hl7-title+xml">WARNINGS</title>
+<text><paragraph>If renal impairment exists, even usual oral or parenteral doses may lead to excessive systemic accumulation of the drug and possible liver toxicity. Under such conditions, lower than usual doses are indicated and if therapy is prolonged, tetracycline serum level determinations may be advisable. </paragraph><paragraph>Oxytetracycline HCl, which is one of the ingredients of Urobiotic-250, may form a stable calcium complex in any bone-forming tissue with no serious harmful effects reported thus far in humans. However, use of oxytetracycline during tooth development (last trimester of pregnancy, neonatal period and early childhood) may cause discoloration of the teeth (yellow-grey-brownish). This effect occurs mostly during long term use of the drug but it also has been observed in usual short treatment courses. </paragraph><paragraph>Because of its sulfonamide content, this drug should be used only after critical appraisal in patients with liver damage, renal damage, urinary obstruction, or blood dyscrasias. Deaths have been reported from hypersensitivity reactions, agranulocytosis, aplastic anemia, and other blood dyscrasias associated with sulfonamide administration. When used intermittently, or for a prolonged period, blood counts and liver and kidney function tests should be performed. </paragraph><paragraph>Certain hypersensitive individuals may develop a photodynamic reaction precipitated by exposure to direct sunlight during the use of this drug. This reaction is usually of the photoallergic type which may also be produced by other tetracycline derivatives. Individuals with a history of photosensitivity reactions should be instructed to avoid exposure to direct sunlight while under treatment with this or other tetracycline drugs, and treatment should be discontinued at first evidence of skin discomfort.</paragraph><paragraph>NOTE: Reactions of a photoallergic nature are exceedingly rare with Terramycin (oxytetracycline HCl). Phototoxic reactions are not believed to occur with Terramycin.</paragraph></text>
+<effectiveTime value="20051214" />
+</section>
+</component>
+<component>
+<section>
+<id root="82E478C9-8224-BD9B-2EB3-9B263F6E8CA1" />
+<code code="42232-9" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="PRECAUTIONS SECTION" />
+<title mediaType="text/x-hl7-title+xml">PRECAUTIONS</title>
+<text><paragraph>As with all antibiotic preparations, use of this drug may result in overgrowth of nonsusceptible organisms, including fungi. If superinfection occurs, the antibiotic should be discontinued and appropriate specific therapy should be instituted. This drug should be used with caution in persons having histories of significant allergies and/or asthma.</paragraph></text>
+<effectiveTime value="20051214" />
+</section>
+</component>
+<component>
+<section ID="Adverse_Reactions">
+<id root="CAA67457-BB27-327A-3111-043AC46A23BE" />
+<code code="34084-4" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="ADVERSE REACTIONS SECTION" />
+<title mediaType="text/x-hl7-title+xml">ADVERSE REACTIONS</title>
+<text><paragraph>Glossitis, stomatitis, proctitis, nausea, diarrhea, vaginitis, and dermatitis, as well as reactions of an allergic nature, may occur during oxytetracycline HCl therapy, but are rare. If adverse reactions, individual idiosyncrasy, or allergy occur, discontinue medication. Rare instances of esophagitis and esophageal ulcerations have been reported in patients receiving capsule forms of drugs in the tetracycline class. Most of these patients took medications immediately before going to bed. (See <linkHtml href="#Dosage_and_Administration">Dosage and Administration</linkHtml>.)</paragraph><paragraph>With oxytetracycline therapy bulging fontanels in infants and benign intracranial hypertension in adults have been reported in individuals receiving full therapeutic dosages. These conditions disappeared rapidly when the drug was discontinued.</paragraph><paragraph>As in all sulfonamide therapy, the following reactions may occur: nausea, vomiting, diarrhea, hepatitis, pancreatitis, blood dyscrasias, neuropathy, drug fever, skin rash, injection of the conjunctiva and sclera, petechiae, purpura, hematuria and crystalluria. The dosage should be decreased or the drug withdrawn, depending upon the severity of the reaction.</paragraph></text>
+<effectiveTime value="20051214" />
+</section>
+</component>
+<component>
+<section ID="Dosage_and_Administration">
+<id root="D6AF22D2-6424-826E-1787-3EDDE948FD28" />
+<code code="34068-7" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="DOSAGE &amp; ADMINISTRATION SECTION" />
+<title mediaType="text/x-hl7-title+xml">DOSAGE AND ADMINISTRATION</title>
+<text><paragraph>Urobiotic-250 is recommended in adults only. A dose of 1 capsule four times daily is suggested. In refractory cases 2 capsules four times a day may be used.</paragraph><paragraph>Therapy should be continued for a minimum of seven days or until bacteriologic cure in acute urinary tract infections.</paragraph><paragraph>Administration of adequate amounts of fluid along with capsule forms of drugs in the tetracycline class is recommended to wash down the drugs and reduce the risk of esophageal irritation and ulceration. (See<linkHtml href="#Adverse_Reactions">Adverse Reactions</linkHtml>.)</paragraph><paragraph>To aid absorption of the drug, it should be given at least one hour before or two hours after eating. Aluminum hydroxide gel given with antibiotics has been shown to decrease their absorption and is contraindicated.</paragraph></text>
+<effectiveTime value="20051214" />
+</section>
+</component>
+<component>
+<section>
+<id root="5EC1BFD9-D5DB-EA55-1723-5DF15E6A967B" />
+<code code="34069-5" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="HOW SUPPLIED SECTION" />
+<title mediaType="text/x-hl7-title+xml">SUPPLY</title>
+<text><paragraph>Urobiotic-250 capsules: bottles of 50 (NDC 0049-0920-50), and unit dose packages of 100 (10 &#215; 10's) (NDC 0049-0920-41).</paragraph></text>
+<effectiveTime value="20051214" />
+</section>
+</component>
+<component>
+<section>
+<id root="AF830F6F-8D3D-52FE-2A4B-732ADB2C32CE" />
+<code code="42229-5" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="SPL UNCLASSIFIED SECTION" />
+<title mediaType="text/x-hl7-title+xml" />
+<text><paragraph><content styleCode="bold">Rx only</content></paragraph><renderMultiMedia referencedObject="MM1" /><paragraph>70-1636-00-9<br />December 1986</paragraph></text>
+<effectiveTime value="20051214" />
+<component>
+<observationMedia ID="MM1">
+<value mediaType="image/jpeg" xsi:type="ED"><reference value="urobiotic-image01.jpg" /></value>
+</observationMedia>
+</component>
+</section>
+</component>
+</structuredBody>
+</component>
+</document>

@@ -10,7 +10,7 @@ from medirag.index.abc import Indexer
 
 
 class KDBAIDailyMedIndexer(Indexer):
-    def __init__(self, model_name="nuvocare/WikiMedical_sent_biobert", table_name="daily_med"):
+    def __init__(self, model_name="nuvocare/WikiMedical_sent_biobert", table_name="daily_med_v1"):
         self._vector_store_index = None
         self.model_name = model_name
         self.table_name = table_name
@@ -39,7 +39,7 @@ class KDBAIDailyMedIndexer(Indexer):
 
     def _initialize_vector_store(self):
         # Initialize vector store using the session
-        vector_store = KDBAIVectorStore(self.session.table(self.table_name), batch_size=100)
+        vector_store = KDBAIVectorStore(self.session.table(self.table_name), batch_size=50)
         logger.debug(f"Vector store initialized for table: {self.table_name}.")
         return vector_store
 

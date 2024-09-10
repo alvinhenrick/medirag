@@ -20,11 +20,11 @@ indexer.load_index()
 rm = DailyMedRetrieve(indexer=indexer)
 
 # Set the LLM model for DSPy
-llm = dspy.OpenAI(model="gpt-3.5-turbo", max_tokens=4000)
+llm = dspy.OpenAI(model="gpt-4o-mini", max_tokens=4000)
 dspy.settings.configure(lm=llm, rm=rm)
 
 # Set the LLM model for LlamaIndex
-Settings.llm = OpenAI(model="gpt-3.5-turbo")
+Settings.llm = OpenAI(model="gpt-4o-mini")
 
 sm = LocalSemanticCache(model_name="sentence-transformers/all-mpnet-base-v2", dimension=768, json_file="rag_cache.json")
 

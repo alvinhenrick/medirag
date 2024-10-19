@@ -31,10 +31,13 @@ class QuestionAnswerRunner:
 
     async def _handle_streaming_query(self, query: str) -> AsyncGenerator[str, None]:
         try:
-            result = await self.rag.run(query=query)
-            if hasattr(result, "async_response_gen"):
+            response = await self.rag.run(query=query)
+            if isinstance(response, str):
+                yield response
+                self.semantic_cache.save(query, response)
+            if hasattr(response, "async_response_gen"):
                 accumulated_response = ""
-                async for chunk in result.async_response_gen():
+                async for chunk in response.async_response_gen():
                     accumulated_response += chunk
                     yield chunk
                 self.semantic_cache.save(query, accumulated_response)

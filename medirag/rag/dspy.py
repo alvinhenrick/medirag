@@ -23,12 +23,11 @@ class DailyMedRetrieve(dspy.Retrieve):
         with_reranker: bool = False,
         **kwargs,
     ) -> list[dspy.Prediction]:
-        if query_or_queries is None:
-            if query is None:
-                raise ValueError("Either query_or_queries or query must be provided.")
-            query_or_queries = query
+        final_query = query_or_queries if query_or_queries is not None else query
+        if final_query is None:
+            raise ValueError("Either query_or_queries or query must be provided.")
         actual_k = k if k is not None else self.k
-        results = self.indexer.retrieve(query=query_or_queries, top_k=actual_k, with_reranker=with_reranker)
+        results = self.indexer.retrieve(query=final_query, top_k=actual_k, with_reranker=with_reranker)
         return [dotdict({"long_text": result.text}) for result in results]  # noqa
 
 

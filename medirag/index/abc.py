@@ -28,7 +28,10 @@ class Indexer(ABC):
             logger.error("Index is not initialized. Please build or load an index first.")
             raise ValueError("Index is not initialized.")
 
-        retriever = self.vector_store_index.as_retriever(similarity_top_k=(top_k * 3 if with_reranker else top_k))
+        retriever = self.vector_store_index.as_retriever(
+            similarity_top_k=(top_k * 3 if with_reranker else top_k), vector_store_kwargs={"index": "defaultIndexName0"}
+        )
+
         nodes = retriever.retrieve(query)
         logger.info(f"Retrieved {len(nodes)} nodes.")
 

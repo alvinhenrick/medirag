@@ -18,12 +18,13 @@ async def test_rag_with_example(data_dir):
     assert index_path.exists(), f"Directory not found: {index_path}"
 
     # Index and query documents
+    # indexer = KDBAIDailyMedIndexer()
     indexer = LocalIndexer(persist_dir=index_path)
     indexer.load_index()
     rm = DailyMedRetrieve(indexer=indexer)
 
     query = "What information do you have about Clopidogrel?"
-    turbo = dspy.OpenAI(model="gpt-3.5-turbo", max_tokens=4000)
+    turbo = dspy.OpenAI(model="gpt-4o-mini", max_tokens=4000)
 
     top_k = 3  # Adjust the number of documents to retrieve
     dspy.settings.configure(lm=turbo, rm=rm)

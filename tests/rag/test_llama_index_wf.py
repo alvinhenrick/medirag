@@ -19,11 +19,12 @@ async def test_wf_with_example(data_dir):
     assert index_path.exists(), f"Directory not found: {index_path}"
 
     # Initialize the indexer and load the index
+    # indexer = KDBAIDailyMedIndexer()
     indexer = LocalIndexer(persist_dir=index_path)
     indexer.load_index()
 
     top_k = 3  # Adjust the number of documents to retrieve
-    Settings.llm = OpenAI(model="gpt-3.5-turbo")
+    Settings.llm = OpenAI(model="gpt-4o-mini")
 
     # Pass the indexer to the workflow
     rag = WorkflowRAG(indexer=indexer, timeout=60, top_k=top_k)

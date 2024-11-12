@@ -39,7 +39,7 @@ class KDBAIDailyMedIndexer(Indexer):
 
     def _initialize_vector_store(self):
         # Initialize vector store using the session
-        vector_store = KDBAIVectorStore(self.session.table(self.table_name), batch_size=50)
+        vector_store = KDBAIVectorStore(self.session.database("default").table(self.table_name), batch_size=50)
         logger.debug(f"Vector store initialized for table: {self.table_name}.")
         return vector_store
 

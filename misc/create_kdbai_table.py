@@ -18,12 +18,14 @@ schema = dict(
     ]
 )
 
-KDBAI_TABLE_NAME = "daily_med"
+KDBAI_TABLE_NAME = "daily_med_v1"
 
-# First ensure the table does not already exist
-if KDBAI_TABLE_NAME in session.list():
-    pass
-    # session.table(KDBAI_TABLE_NAME).drop()
-else:
-    # Create the table
-    table = session.create_table(KDBAI_TABLE_NAME, schema)
+table = session.database("default").table(KDBAI_TABLE_NAME)
+print()
+# # First ensure the table does not already exist
+# if KDBAI_TABLE_NAME in session.list():
+#     pass
+#     # session.table(KDBAI_TABLE_NAME).drop()
+# else:
+#     # Create the table
+#     table = session.database("default").create_table(KDBAI_TABLE_NAME, schema=schema)

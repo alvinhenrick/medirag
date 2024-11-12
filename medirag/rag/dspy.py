@@ -5,7 +5,7 @@ from dsp import dotdict
 
 from medirag.guardrail.input import InputGuardrail
 from medirag.guardrail.output import OutputGuardrail
-from medirag.index.abc import Indexer
+from medirag.index.ptc import Indexer
 
 
 class DailyMedRetrieve(dspy.Retrieve):
@@ -15,13 +15,19 @@ class DailyMedRetrieve(dspy.Retrieve):
 
     def forward(
         self,
-        query_or_queries: str | list[str],
+        query_or_queries: Optional[str | list[str]] = None,
+        query: Optional[str] = None,
         k: Optional[int] = None,
         by_prob: bool = True,
         with_metadata: bool = False,
         with_reranker: bool = False,
         **kwargs,
-    ) -> dspy.Prediction:
+    ) -> list[dspy.Prediction]:
+        if query_or_queries is None:
+            if query is None:
+                raise ValueError("Either query_or_queries or query must be provided.")
+            query_or_queries = query
+
         actual_k = k if k is not None else self.k
         results = self.indexer.retrieve(query=query_or_queries, top_k=actual_k, with_reranker=with_reranker)
         return [dotdict({"long_text": result.text}) for result in results]  # noqa

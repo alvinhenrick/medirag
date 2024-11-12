@@ -5,7 +5,7 @@ from llama_index.core.workflow import Context, Workflow, StartEvent, StopEvent, 
 from llama_index.core.workflow import Event
 from pydantic import BaseModel
 
-from medirag.index.abc import Indexer
+from medirag.index.ptc import Indexer
 
 from loguru import logger
 

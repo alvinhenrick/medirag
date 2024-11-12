@@ -1,10 +1,11 @@
+from llama_index.vector_stores.faiss import FaissVectorStore
+from llama_index.core import VectorStoreIndex, Settings, load_index_from_storage, StorageContext
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from loguru import logger
 import faiss
-from llama_index.core import VectorStoreIndex, StorageContext, Settings, load_index_from_storage
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-from llama_index.vector_stores.faiss import FaissVectorStore
 
-from medirag.index.abc import Indexer
+from medirag.index.ptc import Indexer
+from medirag.index.utils import retrieve_common
 
 
 class LocalIndexer(Indexer):
@@ -13,19 +14,24 @@ class LocalIndexer(Indexer):
         self.model_name = model_name
         self.dimension = dimension
         self.persist_dir = persist_dir
-        self.storage_context = self._initialize_storage_context()
-        self._initialize_embedding_model()
+        self._initialize()
 
     @property
     def vector_store_index(self):
         return self._vector_store_index
 
-    def _initialize_storage_context(self):
+    def _initialize(self):
+        # Initialize embedding model
+        embed_model = HuggingFaceEmbedding(model_name=self.model_name)
+        Settings.embed_model = embed_model
+        logger.info("Embedding model initialized.")
+
+        # Load or create FAISS index
         try:
-            return self._load_storage_context()
+            self.storage_context = self._load_storage_context()
         except Exception as e:
-            logger.warning(f"Failed to load storage context from disk: {e}. Creating a new storage context.")
-            return self._create_faiss_index()
+            logger.warning(f"Failed to load storage context from disk: {e}. Creating a new FAISS index.")
+            self.storage_context = self._create_faiss_index()
 
     def _load_storage_context(self):
         vector_store = FaissVectorStore.from_persist_dir(self.persist_dir)
@@ -36,43 +42,27 @@ class LocalIndexer(Indexer):
     def _create_faiss_index(self):
         index = faiss.IndexFlatIP(self.dimension)
         vector_store = FaissVectorStore(faiss_index=index)
-        return StorageContext.from_defaults(vector_store=vector_store)
-
-    def _initialize_embedding_model(self):
-        try:
-            embed_model = HuggingFaceEmbedding(model_name=self.model_name)
-            Settings.embed_model = embed_model
-            logger.info("Embedding model initialized successfully.")
-        except Exception as e:
-            logger.error(f"Failed to initialize embedding model: {e}")
+        storage_context = StorageContext.from_defaults(vector_store=vector_store)
+        return storage_context
 
     def load_index(self, documents=None):
         if documents:
             logger.info("Building index from documents...")
-            self.storage_context = self._create_faiss_index()
             self._vector_store_index = VectorStoreIndex.from_documents(documents, storage_context=self.storage_context)
-            return self._vector_store_index
         else:
-            return self._load_existing_index()
+            self._load_existing_index()
 
     def _load_existing_index(self):
         try:
+            # Using `load_index_from_storage` to load an existing index
             self._vector_store_index = load_index_from_storage(storage_context=self.storage_context)
             logger.info("Index loaded from storage context.")
-            return self._vector_store_index
         except Exception as e:
             logger.error(f"Failed to load index from storage context: {e}")
             raise ValueError("Failed to load index from storage context.")
-
-    def save_index(self):
-        if not self._vector_store_index:
-            logger.error("No index to save. Load or build an index first.")
-            raise ValueError("No index to save.")
-        self._vector_store_index.storage_context.persist(self.persist_dir)
-        logger.info(f"Index saved to {self.persist_dir}.")
 
     def retrieve(self, query, top_k: int = 3, with_reranker: bool = False):
         """
         Retrieve the top-k results based on the query.
         """
-        return self.retrieve_common(query, top_k, with_reranker)
+        return retrieve_common(self.vector_store_index, query, top_k, with_reranker)

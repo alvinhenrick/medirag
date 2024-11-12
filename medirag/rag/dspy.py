@@ -27,7 +27,6 @@ class DailyMedRetrieve(dspy.Retrieve):
             if query is None:
                 raise ValueError("Either query_or_queries or query must be provided.")
             query_or_queries = query
-
         actual_k = k if k is not None else self.k
         results = self.indexer.retrieve(query=query_or_queries, top_k=actual_k, with_reranker=with_reranker)
         return [dotdict({"long_text": result.text}) for result in results]  # noqa

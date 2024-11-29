@@ -23,6 +23,6 @@ document_processor = DailyMedDocumentProcessor(extracted_dir=extracted_dir)
 documents = document_processor.load_documents()
 
 # Index and query documents
-indexer = KDBAIDailyMedIndexer()
+indexer = KDBAIDailyMedIndexer(table_name="daily_med_v2")
 indexer.load_index(documents=documents)
 print("done")

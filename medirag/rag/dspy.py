@@ -1,7 +1,7 @@
 from typing import Optional
 
 import dspy
-from dsp import dotdict
+from dspy.dsp.utils import dotdict
 
 from medirag.guardrail.input import InputGuardrail
 from medirag.guardrail.output import OutputGuardrail
@@ -45,8 +45,8 @@ class GenerateAnswer(dspy.Signature):
 class DspyRAG(dspy.Module):
     def __init__(self, k: int = 3, with_reranker: bool = False):
         super().__init__()
-        self.input_guardrail = dspy.TypedPredictor(InputGuardrail)
-        self.output_guardrail = dspy.TypedPredictor(OutputGuardrail)
+        self.input_guardrail = InputGuardrail
+        self.output_guardrail = OutputGuardrail
 
         self.retrieve = dspy.Retrieve(k=k)
         self.with_reranker = with_reranker

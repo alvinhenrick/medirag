@@ -20,8 +20,8 @@ indexer.load_index()
 rm = DailyMedRetrieve(indexer=indexer)
 
 # Set the LLM model for DSPy
-llm = dspy.OpenAI(model="gpt-4o-mini", max_tokens=4000)
-dspy.settings.configure(lm=llm, rm=rm)
+lm = dspy.LM("openai/gpt-4o-mini", max_tokens=4000)
+dspy.settings.configure(lm=lm, rm=rm)
 
 # Set the LLM model for LlamaIndex
 Settings.llm = OpenAI(model="gpt-4o-mini")

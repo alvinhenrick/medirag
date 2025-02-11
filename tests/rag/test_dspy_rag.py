@@ -24,10 +24,10 @@ async def test_rag_with_example(data_dir):
     rm = DailyMedRetrieve(indexer=indexer)
 
     query = "What information do you have about Clopidogrel?"
-    turbo = dspy.OpenAI(model="gpt-4o-mini", max_tokens=4000)
+    lm = dspy.LM("openai/gpt-4o-mini", max_tokens=4000)
 
     top_k = 3  # Adjust the number of documents to retrieve
-    dspy.settings.configure(lm=turbo, rm=rm)
+    dspy.settings.configure(lm=lm, rm=rm)
 
     rag = DspyRAG(k=top_k)
 

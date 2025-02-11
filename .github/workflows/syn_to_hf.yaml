@@ -5,16 +5,17 @@ on:
 
   # to run this workflow manually from the Actions tab
   workflow_dispatch:
-#jobs:
-#  sync-to-hub:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v3
-#      #        with:
-#      #          fetch-depth: 0
-#      #          lfs: true
-#      - name: Push to hub
-#        env:
-#          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-#          HF_USERNAME: ${{ vars.HF_USERNAME }}
-#        run: git push --force https://$HF_USERNAME:$HF_TOKEN@huggingface.co/spaces/$HF_USERNAME/medirag main
+jobs:
+  sync-to-hub:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          lfs: true
+      - name: Push to hub
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_USERNAME: ${{ vars.HF_USERNAME }}
+        run: echo "Do nothing"
+        # git push --force https://$HF_USERNAME:$HF_TOKEN@huggingface.co/spaces/$HF_USERNAME/medirag main

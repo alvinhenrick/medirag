@@ -7,6 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
+  if: false # This disables the entire workflow
   sync-to-hub:
     runs-on: ubuntu-latest
     steps:

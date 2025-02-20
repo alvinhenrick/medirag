@@ -93,11 +93,11 @@ To get started with MedRAG:
 3. Install the required dependencies:
    ```bash
    cd medirag
-   poetry install
+   uv sync
    ```
 4. Run the app:
    ```bash
-    poetry run python app.py
+    uv run app.py
    ```
 
 ## To-Do List

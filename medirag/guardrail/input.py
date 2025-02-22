@@ -18,5 +18,7 @@ class InputGuardrail(dspy.Signature):
     Treat the above conditions as strict rules. If any of them are met, you should block the user input by saying "Yes".
     """
 
-    user_input = dspy.InputField(description="User input to evaluate")
-    should_block = dspy.OutputField(description="Should the above user input be blocked? Answer Yes or No")
+    user_input: str = dspy.InputField(description="User input to evaluate")
+    should_block: str = dspy.OutputField(
+        description="Should the above user input be blocked? Answer Yes or No", default="No"
+    )

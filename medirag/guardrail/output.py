@@ -14,6 +14,8 @@ class OutputGuardrail(dspy.Signature):
       If the response meets all the listed conditions, you should allow it by saying "No".
     """
 
-    user_input = dspy.InputField(description="User input")
-    bot_response = dspy.InputField(description="Bot response to evaluate")
-    should_block = dspy.OutputField(description="Should the above bot response be blocked? Answer Yes or No")
+    user_input: str = dspy.InputField(description="User input")
+    bot_response: str = dspy.InputField(description="Bot response to evaluate")
+    should_block: str = dspy.OutputField(
+        description="Should the above bot response be blocked? Answer Yes or No", default="No"
+    )

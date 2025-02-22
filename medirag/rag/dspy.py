@@ -37,9 +37,9 @@ class GenerateAnswer(dspy.Signature):
       - Do not provide any form of diagnosis or treatment advice.
     """
 
-    context = dspy.InputField(desc="Contains relevant facts about drug labels")
-    question = dspy.InputField()
-    answer = dspy.OutputField(desc="Answer with detailed summary")
+    context: str = dspy.InputField(desc="Contains relevant facts about drug labels")
+    question: str = dspy.InputField()
+    answer: str = dspy.OutputField(desc="Answer with detailed summary")
 
 
 class DspyRAG(dspy.Module):

@@ -5,15 +5,14 @@ Emits two kinds of records per drug:
   - one ProductCard summarizing structured product data (ingredients, NDC, appearance, route)
   - one SectionRecord per narrative section, keyed by LOINC
 
-Records are plain dataclasses so the indexer doesn't depend on LlamaIndex.
+Records are plain dataclasses, so the indexer doesn't depend on LlamaIndex.
 """
-
-from __future__ import annotations
 
 import re
 import zipfile
 from dataclasses import dataclass, field
 from html import unescape
+from io import BytesIO
 from pathlib import Path
 from typing import Iterable
 
@@ -436,12 +435,8 @@ def parse_spl_zip(zip_path: str | Path) -> Iterable[list[ProductCard | SectionRe
             elif name.endswith(".zip"):
                 with outer.open(name) as inner_zip_bytes:
                     inner_data = inner_zip_bytes.read()
-                with zipfile.ZipFile(_BytesIO(inner_data)) as inner:
+                with zipfile.ZipFile(BytesIO(inner_data)) as inner:
                     for inner_name in inner.namelist():
                         if inner_name.endswith(".xml"):
                             with inner.open(inner_name) as f:
                                 yield parse_spl(f.read())
-
-
-# Local alias to avoid top-level io import for the hot path.
-from io import BytesIO as _BytesIO  # noqa: E402

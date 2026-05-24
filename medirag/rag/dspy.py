@@ -6,9 +6,7 @@ no `dspy.Retrieve` wrapper. Streaming is exposed via `dspy.streamify` with a
 StreamListener on the `answer` field.
 """
 
-from __future__ import annotations
-
-from typing import Any, AsyncIterator, Callable
+from typing import Any, AsyncIterable, AsyncIterator, Callable
 
 import dspy
 
@@ -22,7 +20,7 @@ class GenerateAnswer(dspy.Signature):
     Answer the patient's question using only the provided context.
 
     Rules:
-      - Use plain language a non-medical patient can understand.
+      - Use plain language a nonmedical patient can understand.
       - Cite which section the answer comes from (e.g., "from the Adverse Reactions section").
       - If multiple drugs are mentioned, compare them clearly.
       - Do not give a diagnosis or personalised treatment advice; suggest consulting a pharmacist or doctor for personal medical decisions.
@@ -64,21 +62,6 @@ class DspyRAG(dspy.Module):
         return dspy.Prediction(context=context, answer=prediction.answer)
 
 
-StreamedRAG = Callable[..., AsyncIterator[Any]]
-
-
-def _streamify_answer(rag: DspyRAG) -> StreamedRAG:
-    """
-    Wrap dspy.streamify with the correct return type.
-
-    DSPy types streamify as returning `Callable[..., Awaitable[Any]]`, but the
-    underlying function is an async generator. We type-correct it here so the
-    rest of the module sees the real shape: a callable returning an AsyncIterator.
-    """
-    listener = dspy.streaming.StreamListener(signature_field_name="answer")
-    return dspy.streamify(rag, stream_listeners=[listener])  # type: ignore[return-value]
-
-
 async def stream_answer(rag: DspyRAG, question: str) -> AsyncIterator[str]:
     """
     Async generator yielding answer chunks as the LM streams them.
@@ -86,7 +69,12 @@ async def stream_answer(rag: DspyRAG, question: str) -> AsyncIterator[str]:
     Falls back to the final prediction if no chunks arrive (e.g. when the input guardrail blocks before the answer LM is
     invoked).
     """
-    streamed = _streamify_answer(rag)
+    listener = dspy.streaming.StreamListener(signature_field_name="answer")
+    # dspy.streamify is mistyped as Callable[..., Awaitable[Any]] but actually
+    # returns an async generator. Launder through Any, then bind the real type
+    # so downstream code sees AsyncIterable.
+    raw: Any = dspy.streamify(rag, stream_listeners=[listener])
+    streamed: Callable[..., AsyncIterable[Any]] = raw
 
     saw_chunk = False
     final_text = ""

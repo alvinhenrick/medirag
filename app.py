@@ -2,8 +2,6 @@
 MediRAG Gradio app — DSPy 3 + LanceDB + PubMedBERT.
 """
 
-from __future__ import annotations
-
 import os
 
 import dspy
@@ -14,7 +12,7 @@ from loguru import logger
 from medirag.cache.local import LocalSemanticCache
 from medirag.index.lance import LanceIndexer
 from medirag.rag.dspy import DspyRAG
-from medirag.rag.qa_rag import QuestionAnswerRunner
+from medirag.rag.pipeline import answer_stream
 
 
 load_dotenv()
@@ -58,13 +56,12 @@ async def ask(query: str, model_label: str, top_k: int):
     lm = dspy.LM(model_id, max_tokens=1500)
 
     rag = DspyRAG(indexer=indexer, k=int(top_k), hybrid=True)
-    qa = QuestionAnswerRunner(sm=semantic_cache, rag=rag)
 
     # DSPy 3 requires per-task configuration; Gradio spawns a new task per request,
     # so we use `dspy.context()` instead of a global `dspy.configure()`.
     with dspy.context(lm=lm):
         accumulated = ""
-        async for chunk in qa.ask(query):
+        async for chunk in answer_stream(rag, semantic_cache, query):
             accumulated += chunk
             yield accumulated
 

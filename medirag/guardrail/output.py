@@ -3,19 +3,11 @@ import dspy
 
 class OutputGuardrail(dspy.Signature):
     """
-    Your task is to determine whether the bot response meets the moderation policy, given the user input and the bot
-    response.
+    Decide whether to block the model's response.
 
-    The moderation policy states that the response should meet the following conditions:
-      - It should NOT include any personal or user-specific information.
-
-      Treat the above conditions as strict rules.
-      If any of them are violated, you should block the bot's response by saying "Yes".
-      If the response meets all the listed conditions, you should allow it by saying "No".
+    Block if the response includes personal or user-specific information. Otherwise allow.
     """
 
-    user_input: str = dspy.InputField(description="User input")
-    bot_response: str = dspy.InputField(description="Bot response to evaluate")
-    should_block: str = dspy.OutputField(
-        description="Should the above bot response be blocked? Answer Yes or No", default="No"
-    )
+    user_input: str = dspy.InputField(description="The user's question")
+    bot_response: str = dspy.InputField(description="The model's response to evaluate")
+    should_block: bool = dspy.OutputField(description="True if the response should be blocked")

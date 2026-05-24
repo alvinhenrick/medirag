@@ -1,6 +1,12 @@
+"""
+Semantic cache backed by a normalized numpy matrix + cosine similarity.
+
+Small enough that brute-force search beats maintaining an ANN index, and avoids a faiss-cpu BLAS conflict with
+pyarrow/lancedb on macOS.
+"""
+
 from pathlib import Path
 
-import faiss
 import json
 import numpy as np
 from pydantic import BaseModel, ValidationError
@@ -26,20 +32,18 @@ class LocalSemanticCache(SemanticCache):
         self.model_name = model_name
         self.dimension = dimension
         self.json_file = json_file
-        self.vector_index = faiss.IndexFlatIP(self.dimension)
         self.encoder = SentenceTransformer(model_name)
-        self._cache = SemanticCacheModel()  # Initialize with a default SemanticCache to avoid NoneType issues
+        self._cache = SemanticCacheModel()
+        self._matrix: np.ndarray = np.zeros((0, dimension), dtype=np.float32)
         self.load_cache()
 
     def load_cache(self) -> None:
         try:
             with open(self.json_file, "r") as file:
                 data = json.load(file)
-            self._cache = SemanticCacheModel(**data)  # Use unpacking to handle Pydantic validation
-            for emb in self._cache.embeddings:
-                np_emb = np.array(emb, dtype=np.float32)
-                faiss.normalize_L2(np_emb.reshape(1, -1))
-                self.vector_index.add(np_emb.reshape(1, -1))
+            self._cache = SemanticCacheModel(**data)
+            if self._cache.embeddings:
+                self._matrix = np.asarray(self._cache.embeddings, dtype=np.float32)
         except FileNotFoundError:
             logger.info("Cache file not found, initializing new cache.")
         except ValidationError as e:
@@ -53,38 +57,35 @@ class LocalSemanticCache(SemanticCache):
             json.dump(data, file, indent=4)
         logger.info("Cache saved successfully.")
 
+    def _encode(self, text: str) -> np.ndarray:
+        vec = self.encoder.encode([text], show_progress_bar=False, normalize_embeddings=True)
+        return np.asarray(vec, dtype=np.float32).reshape(1, -1)
+
     def lookup(self, question: str, cosine_threshold: float = 0.7) -> str | None:
-        embedding = self.encoder.encode([question], show_progress_bar=False)
-        faiss.normalize_L2(embedding)
-        data, index = self.vector_index.search(embedding, 1)
-        if data[0][0] >= cosine_threshold:
-            return self._cache.response_text[index[0][0]]
+        if self._matrix.shape[0] == 0:
+            return None
+        q = self._encode(question)
+        sims = (self._matrix @ q.T).ravel()
+        best = int(np.argmax(sims))
+        if float(sims[best]) >= cosine_threshold:
+            return self._cache.response_text[best]
         return None
 
     def save(self, question: str, response: str):
-        """
-        Save a response to the cache.
-        """
-        embedding = self.encoder.encode([question], show_progress_bar=False)
-        faiss.normalize_L2(embedding)
+        q = self._encode(question)
         self._cache.questions.append(question)
-        self._cache.embeddings.append(embedding[0].tolist())
+        self._cache.embeddings.append(q.ravel().tolist())
         self._cache.response_text.append(response)
-        self.vector_index.add(embedding)  # noqa
+        self._matrix = np.vstack([self._matrix, q]) if self._matrix.size else q
         self.save_cache()
         logger.info("New response saved to cache.")
 
     def clear(self):
-        """
-        Clears the in-memory cache and deletes the cache file to completely reset the state using pathlib.
-        """
         self._cache = SemanticCacheModel()
-        self.vector_index.reset()
+        self._matrix = np.zeros((0, self.dimension), dtype=np.float32)
         cache_file_path = Path(self.json_file)
         try:
-            cache_file_path.unlink(
-                missing_ok=True
-            )  # Deletes the file, does not raise an exception if the file does not exist
+            cache_file_path.unlink(missing_ok=True)
             logger.info(f"Cache file {self.json_file} deleted successfully.")
         except Exception as e:
             logger.error(f"Failed to delete cache file {self.json_file}: {e}")

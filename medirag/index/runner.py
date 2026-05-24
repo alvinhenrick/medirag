@@ -20,8 +20,6 @@ Usage examples:
         --publish-repo user/medirag-dailymed --publish-token $HF_TOKEN
 """
 
-from __future__ import annotations
-
 import argparse
 import os
 import sys

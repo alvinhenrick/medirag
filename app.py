@@ -24,8 +24,6 @@ CACHE_FILE = os.getenv("CACHE_FILE", "rag_cache.json")
 MODELS = {
     "GPT-4o mini (fast, cheap)": "openai/gpt-4o-mini",
     "GPT-4o (best quality)": "openai/gpt-4o",
-    "Claude Haiku 4.5 (fast)": "anthropic/claude-haiku-4-5",
-    "Claude Sonnet 4.6 (best quality)": "anthropic/claude-sonnet-4-6",
 }
 DEFAULT_MODEL_LABEL = "GPT-4o mini (fast, cheap)"
 

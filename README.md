@@ -8,6 +8,7 @@ sdk_version: 5.5.0
 app_file: app.py
 pinned: false
 license: mit
+short_description: Ask plain-language questions about your medication — grounded in FDA DailyMed labels.
 ---
 
 <table>
@@ -39,7 +40,7 @@ DailyMed structured product labels.
   the model's answer.
 - **Streaming answers**: Token-level streaming via `dspy.streamify`.
 - **Semantic cache**: Reuses answers for semantically similar queries.
-- **Model picker**: GPT-4o-mini, GPT-4o, Claude Haiku 4.5, Claude Sonnet 4.6.
+- **Model picker**: GPT-4o-mini, GPT-4o.
 
 ## Architecture
 
@@ -83,17 +84,22 @@ Streamed answer in Gradio
    uv sync
    ```
 
-3. Create a `.env` file with your model API keys:
+3. Create a `.env` file with your model API key:
 
    ```bash
    OPENAI_API_KEY=...
-   ANTHROPIC_API_KEY=...    # optional, only for Claude models
    HF_TOKEN=...             # optional, only for publishing the index
    ```
 
-4. Build a local index. Download one or more DailyMed parts from
-   [the official release page](https://dailymed.nlm.nih.gov/dailymed/spl-resources-all-drug-labels.cfm),
-   then run:
+4. Get the index. Either pull the prebuilt one from Hugging Face:
+
+   ```bash
+   HF_DATASET=alvinhenrick/medirag-dailymed uv run app.py
+   # → app downloads lance_db/ from HF on first start
+   ```
+
+   …or build it yourself from DailyMed
+   ([official release page](https://dailymed.nlm.nih.gov/dailymed/spl-resources-all-drug-labels.cfm)):
 
    ```bash
    # Quick smoke build: 100 SPLs from one part (~1-2 min)
@@ -126,10 +132,11 @@ of the app can `snapshot_download` it:
 
 ```bash
 uv run python -m medirag.index.runner --all --db ./lance_db \
-    --publish-repo your-username/medirag-dailymed
+    --publish-repo alvinhenrick/medirag-dailymed
 ```
 
-Set `HF_TOKEN` in your env or pass `--publish-token`.
+Set `HF_TOKEN` in your env or pass `--publish-token`. Consumers point at it via
+`HF_DATASET=alvinhenrick/medirag-dailymed`.
 
 ## Testing
 

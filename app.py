@@ -3,10 +3,12 @@ MediRAG Gradio app — DSPy 3 + LanceDB + PubMedBERT.
 """
 
 import os
+from pathlib import Path
 
 import dspy
 import gradio as gr
 from dotenv import load_dotenv
+from huggingface_hub import snapshot_download
 from loguru import logger
 
 from medirag.cache.local import LocalSemanticCache
@@ -20,10 +22,19 @@ load_dotenv()
 LANCE_DB_PATH = os.getenv("LANCE_DB_PATH", "./lance_db")
 LANCE_TABLE = os.getenv("LANCE_TABLE", "spl")
 CACHE_FILE = os.getenv("CACHE_FILE", "rag_cache.json")
+HF_DATASET = os.getenv("HF_DATASET")  # e.g. "alvin/medirag-dailymed"
+
+if HF_DATASET and not Path(LANCE_DB_PATH).exists():
+    logger.info(f"Downloading dataset {HF_DATASET} → {LANCE_DB_PATH}")
+    snapshot_download(
+        repo_id=HF_DATASET,
+        repo_type="dataset",
+        local_dir=LANCE_DB_PATH,
+    )
 
 MODELS = {
     "GPT-4o mini (fast, cheap)": "openai/gpt-4o-mini",
-    "GPT-4o (best quality)": "openai/gpt-4o",
+    "GPT-4o (" " quality)": "openai/gpt-4o",
 }
 DEFAULT_MODEL_LABEL = "GPT-4o mini (fast, cheap)"
 

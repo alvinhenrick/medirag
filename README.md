@@ -135,9 +135,18 @@ The built index is a self-contained directory (`lance_db/`). Publish it to a
 export HF_TOKEN=hf_xxx
 uv run python -m medirag.index.publisher \
     --db ./lance_db --bucket alvinhenrick/dailymed-embeddings
+# → uploads to hf://buckets/alvinhenrick/dailymed-embeddings/lance_db/
 ```
 
-Consumers point at it via `HF_BUCKET=alvinhenrick/dailymed-embeddings`.
+Consumers point at it via `HF_BUCKET=alvinhenrick/dailymed-embeddings`
+(optionally `HF_BUCKET_PREFIX=lance_db/v2` to pin to a specific version).
+
+To publish a new version side-by-side with the current one, pass `--prefix`:
+
+```bash
+uv run python -m medirag.index.publisher \
+    --db ./lance_db --bucket alvinhenrick/dailymed-embeddings --prefix lance_db/v2
+```
 
 ## Testing
 

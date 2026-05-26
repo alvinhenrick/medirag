@@ -23,17 +23,19 @@ LANCE_DB_PATH = os.getenv("LANCE_DB_PATH", "./lance_db")
 LANCE_TABLE = os.getenv("LANCE_TABLE", "spl")
 CACHE_FILE = os.getenv("CACHE_FILE", "rag_cache.json")
 HF_BUCKET = os.getenv("HF_BUCKET")  # e.g. "alvinhenrick/dailymed-embeddings"
+HF_BUCKET_PREFIX = os.getenv("HF_BUCKET_PREFIX", "lance_db")  # path inside the bucket
 
 
-def _bootstrap_index_from_bucket(bucket_id: str, local_path: Path) -> None:
-    logger.info(f"Bootstrapping index from hf://buckets/{bucket_id} → {local_path}")
+def _bootstrap_index_from_bucket(bucket_id: str, prefix: str, local_path: Path) -> None:
+    src = f"hf://buckets/{bucket_id}/{prefix.strip('/')}"
+    logger.info(f"Bootstrapping index from {src} → {local_path}")
     local_path.mkdir(parents=True, exist_ok=True)
-    sync_bucket(f"hf://buckets/{bucket_id}", str(local_path))
+    sync_bucket(src, str(local_path))
     logger.info(f"Index ready at {local_path}")
 
 
 if HF_BUCKET and not Path(LANCE_DB_PATH).exists():
-    _bootstrap_index_from_bucket(HF_BUCKET, Path(LANCE_DB_PATH))
+    _bootstrap_index_from_bucket(HF_BUCKET, HF_BUCKET_PREFIX, Path(LANCE_DB_PATH))
 
 MODELS = {
     "GPT-4o mini (fast, cheap)": "openai/gpt-4o-mini",

@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Iterable, Literal
 
 import lancedb
+import torch
 from lancedb.embeddings import get_registry
 from lancedb.pydantic import LanceModel, Vector
 from loguru import logger
@@ -26,7 +27,8 @@ def _build_schema(embed_model_name: str = EMBED_MODEL):
     """
     Build the LanceDB Pydantic schema with an embedding function attached.
     """
-    embedder = get_registry().get("sentence-transformers").create(name=embed_model_name)
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    embedder = get_registry().get("sentence-transformers").create(name=embed_model_name, device=device)
 
     class SplRecord(LanceModel):
         # identity

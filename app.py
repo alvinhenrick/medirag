@@ -3,12 +3,15 @@ MediRAG Gradio app — DSPy 3 + LanceDB + PubMedBERT.
 """
 
 import os
+import shutil
+import tarfile
+import tempfile
 from pathlib import Path
 
 import dspy
 import gradio as gr
 from dotenv import load_dotenv
-from huggingface_hub import snapshot_download
+from huggingface_hub import hf_hub_download
 from loguru import logger
 
 from medirag.cache.local import LocalSemanticCache
@@ -22,15 +25,29 @@ load_dotenv()
 LANCE_DB_PATH = os.getenv("LANCE_DB_PATH", "./lance_db")
 LANCE_TABLE = os.getenv("LANCE_TABLE", "spl")
 CACHE_FILE = os.getenv("CACHE_FILE", "rag_cache.json")
-HF_DATASET = os.getenv("HF_DATASET")  # e.g. "alvin/medirag-dailymed"
+HF_DATASET = os.getenv("HF_DATASET")  # e.g. "alvinhenrick/medirag-dailymed"
+
+
+def _bootstrap_index_from_hf(dataset_repo: str, local_path: Path) -> None:
+    logger.info(f"Bootstrapping index from {dataset_repo} → {local_path}")
+    archive = hf_hub_download(
+        repo_id=dataset_repo,
+        filename="lance_db.tar",
+        repo_type="dataset",
+    )
+    local_path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(dir=local_path.parent) as tmp:
+        with tarfile.open(archive) as tar:
+            tar.extractall(tmp, filter="data")
+        children = list(Path(tmp).iterdir())
+        if len(children) != 1 or not children[0].is_dir():
+            raise RuntimeError(f"unexpected tar contents: {children}")
+        shutil.move(str(children[0]), str(local_path))
+    logger.info(f"Index ready at {local_path}")
+
 
 if HF_DATASET and not Path(LANCE_DB_PATH).exists():
-    logger.info(f"Downloading dataset {HF_DATASET} → {LANCE_DB_PATH}")
-    snapshot_download(
-        repo_id=HF_DATASET,
-        repo_type="dataset",
-        local_dir=LANCE_DB_PATH,
-    )
+    _bootstrap_index_from_hf(HF_DATASET, Path(LANCE_DB_PATH))
 
 MODELS = {
     "GPT-4o mini (fast, cheap)": "openai/gpt-4o-mini",

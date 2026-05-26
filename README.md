@@ -91,11 +91,11 @@ Streamed answer in Gradio
    HF_TOKEN=...             # optional, only for publishing the index
    ```
 
-4. Get the index. Either pull the prebuilt one from Hugging Face:
+4. Get the index. Either pull the prebuilt one from a Hugging Face Bucket:
 
    ```bash
-   HF_DATASET=alvinhenrick/medirag-dailymed uv run app.py
-   # → app downloads lance_db/ from HF on first start
+   HF_BUCKET=alvinhenrick/dailymed-embeddings uv run app.py
+   # → app syncs lance_db/ from the bucket on first start
    ```
 
    …or build it yourself from DailyMed
@@ -127,16 +127,17 @@ Streamed answer in Gradio
 
 ## Publishing the index to Hugging Face
 
-The built index is a self-contained directory (`lance_db/`). To publish so other instances
-of the app can `snapshot_download` it:
+The built index is a self-contained directory (`lance_db/`). Publish it to a
+[Hugging Face Bucket](https://huggingface.co/docs/huggingface_hub/en/guides/buckets)
+(S3-like Xet-backed storage — re-publishing only transfers changed chunks):
 
 ```bash
-uv run python -m medirag.index.runner --all --db ./lance_db \
-    --publish-repo alvinhenrick/medirag-dailymed
+export HF_TOKEN=hf_xxx
+uv run python -m medirag.index.publisher \
+    --db ./lance_db --bucket alvinhenrick/dailymed-embeddings
 ```
 
-Set `HF_TOKEN` in your env or pass `--publish-token`. Consumers point at it via
-`HF_DATASET=alvinhenrick/medirag-dailymed`.
+Consumers point at it via `HF_BUCKET=alvinhenrick/dailymed-embeddings`.
 
 ## Testing
 

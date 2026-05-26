@@ -7,7 +7,7 @@ metadata for filtering and supports hybrid (vector + BM25) search.
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, Literal
 
 import lancedb
 from lancedb.embeddings import get_registry
@@ -24,7 +24,7 @@ DEFAULT_TABLE = "spl"
 
 def _build_schema(embed_model_name: str = EMBED_MODEL):
     """
-    Build the LanceDB Pydantic schema with embedding function attached.
+    Build the LanceDB Pydantic schema with an embedding function attached.
     """
     embedder = get_registry().get("sentence-transformers").create(name=embed_model_name)
 
@@ -95,14 +95,18 @@ class LanceIndexer:
 
     def _ensure_table(self):
         if self._table is None:
-            self._table = self._db.create_table(self.table_name, schema=self._schema, mode="create")
+            self._table = self._db.create_table(
+                self.table_name,
+                schema=self._schema,  # type: ignore[arg-type]
+                mode="create",
+            )
         return self._table
 
     def add(self, records: Iterable[ProductCard | SectionRecord]) -> int:
         """
         Insert records.
 
-        Embeddings are computed by Lance automatically.
+        Lance computes embeddings automatically.
         """
         rows = [_record_to_row(r) for r in records]
         if not rows:
@@ -135,7 +139,7 @@ class LanceIndexer:
         if self._table is None:
             return []
 
-        query_type = "hybrid" if hybrid else "vector"
+        query_type: Literal["vector", "hybrid"] = "hybrid" if hybrid else "vector"
         search = self._table.search(query, query_type=query_type)
         if where:
             search = search.where(where, prefilter=True)

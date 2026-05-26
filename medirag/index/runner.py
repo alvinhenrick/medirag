@@ -2,8 +2,8 @@
 Build a LanceDB index from DailyMed SPL bundles.
 
 Streams one part at a time, batches records, deletes the source zip after each
-part so the peak disk stays small. Optionally publishes the finished index to a
-Hugging Face dataset repo via `huggingface_hub.upload_folder`.
+part so the peak disk stays small. Publishing to Hugging Face is a separate step
+— see `medirag.index.publisher`.
 
 Usage examples:
     # Index one local zip into ./lance_db
@@ -14,14 +14,9 @@ Usage examples:
 
     # Limit each part to N SPLs (smoke test)
     uv run python -m medirag.index.runner --source part1.zip --db ./lance_db --limit 50
-
-    # Publish after building
-    uv run python -m medirag.index.runner --all --db ./lance_db \\
-        --publish-repo user/medirag-dailymed --publish-token $HF_TOKEN
 """
 
 import argparse
-import os
 import sys
 import tempfile
 import time
@@ -129,27 +124,6 @@ def _index_part(
     return spl_count, record_count
 
 
-def _publish(db_path: Path, repo_id: str, token: str | None) -> None:
-    from huggingface_hub import HfApi, upload_folder
-
-    api = HfApi(token=token)
-    try:
-        api.repo_info(repo_id, repo_type="dataset")
-    except Exception:
-        logger.info(f"Creating dataset repo {repo_id}")
-        api.create_repo(repo_id, repo_type="dataset", exist_ok=True, token=token)
-
-    logger.info(f"Uploading {db_path} → {repo_id}")
-    upload_folder(
-        folder_path=str(db_path),
-        repo_id=repo_id,
-        repo_type="dataset",
-        token=token,
-        commit_message=f"Build {time.strftime('%Y-%m-%d %H:%M:%S')}",
-    )
-    logger.info("Upload complete")
-
-
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     src = parser.add_mutually_exclusive_group(required=True)
@@ -165,13 +139,6 @@ def main(argv: list[str] | None = None) -> int:
         "--work-dir",
         default=None,
         help="Where to download zips to (default: a temp dir, removed on exit)",
-    )
-
-    parser.add_argument("--publish-repo", default=None, help="HF dataset repo to upload to")
-    parser.add_argument(
-        "--publish-token",
-        default=None,
-        help="HF token (or use HF_TOKEN env var)",
     )
 
     args = parser.parse_args(argv)
@@ -224,13 +191,6 @@ def main(argv: list[str] | None = None) -> int:
         f"Done: {total_spls} SPLs, {total_records} records in {elapsed / 60:.1f} min "
         f"({total_records / elapsed:.0f} records/s)"
     )
-
-    if args.publish_repo:
-        token = args.publish_token or os.environ.get("HF_TOKEN")
-        if not token:
-            logger.error("--publish-repo set but no token provided (use --publish-token or HF_TOKEN env)")
-            return 1
-        _publish(db_path, args.publish_repo, token)
 
     return 0
 

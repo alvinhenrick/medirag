@@ -262,7 +262,7 @@ propcache==0.2.1
     # via
     #   aiohttp
     #   yarl
-pyarrow==19.0.0
+pyarrow==24.0.0
     # via
     #   lancedb
     #   medirag

@@ -6,14 +6,41 @@ on:
   # to run this workflow manually from the Actions tab
   workflow_dispatch:
 jobs:
-  sync-to-hub:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - uses: actions/setup-python@v5
         with:
-          fetch-depth: 0
-      - name: Push to hub
+          python-version: "3.12"
+      - name: Install dependencies
+        run: uv sync --frozen
+      - name: Run tests
+        run: uv run pytest tests/
+
+  sync-to-hub:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install hf CLI
+        run: pip install "huggingface_hub[cli]>=1.5.0"
+      - name: Upload to Space
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HF_USERNAME: ${{ vars.HF_USERNAME }}
-        run: git push --force https://$HF_USERNAME:$HF_TOKEN@huggingface.co/spaces/$HF_USERNAME/medirag main
+        run: |
+          hf upload "$HF_USERNAME/medirag" . . \
+            --repo-type space \
+            --commit-message "Sync from GitHub ${GITHUB_SHA::7}" \
+            --exclude ".git/*" \
+            --exclude ".github/*" \
+            --exclude "tests/*" \
+            --exclude "lance_db/*" \
+            --exclude "rag_cache.json" \
+            --exclude "__pycache__/*" \
+            --exclude "**/__pycache__/*"

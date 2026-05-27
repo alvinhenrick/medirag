@@ -188,7 +188,6 @@ tests/                   # Unit + integration tests
 ## Roadmap
 
 - [x] Index all 6 DailyMed parts and publish to HF (via Storage Buckets)
-- [ ] Daily/weekly automatic rebuild from DailyMed update files
 - [ ] LLM evaluation harness on a curated patient-question benchmark
 - [ ] Optional reranker for top-k results
 - [ ] OpenTelemetry traces for retrieval + LM calls

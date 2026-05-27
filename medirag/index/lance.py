@@ -7,13 +7,14 @@ metadata for filtering and supports hybrid (vector + BM25) search.
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Literal
+from typing import Iterable
 
 import lancedb
 import torch
 from lancedb.embeddings import get_registry
 from lancedb.pydantic import LanceModel, Vector
 from loguru import logger
+from sentence_transformers import SentenceTransformer
 
 from medirag.core.reader import ProductCard, SectionRecord
 
@@ -90,6 +91,10 @@ class LanceIndexer:
         self._table = None
         if table_name in _list_table_names(self._db):
             self._table = self._db.open_table(table_name)
+        # CPU-pinned query encoder. Used at search time to bypass the embedder
+        # baked into the table (which can call `.cuda()` on CPU-only deploys).
+        # Indexing still uses the table's stored embedder via `add()`.
+        self._query_encoder: SentenceTransformer | None = None
 
     @property
     def table(self):
@@ -117,6 +122,16 @@ class LanceIndexer:
         table.add(rows)
         return len(rows)
 
+    def _encode_query(self, query: str):
+        encoder = self._query_encoder
+        if encoder is None:
+            encoder = SentenceTransformer(self.embed_model, device="cpu")
+            self._query_encoder = encoder
+        # LanceDB's sentence-transformers wrapper normalizes by default; match
+        # that so query and indexed vectors live in the same space.
+        vec = encoder.encode([query], show_progress_bar=False, normalize_embeddings=True)
+        return vec[0]
+
     def create_fts_index(self) -> None:
         """
         Create a full-text search index on `text` for hybrid retrieval.
@@ -141,8 +156,12 @@ class LanceIndexer:
         if self._table is None:
             return []
 
-        query_type: Literal["vector", "hybrid"] = "hybrid" if hybrid else "vector"
-        search = self._table.search(query, query_type=query_type)
+        query_vec = self._encode_query(query)
+        if hybrid:
+            # Hybrid takes (vector, text): vector for semantic search, text for BM25.
+            search = self._table.search((query_vec, query), query_type="hybrid")
+        else:
+            search = self._table.search(query_vec, query_type="vector")
         if where:
             search = search.where(where, prefilter=True)
         results = search.limit(top_k).to_list()

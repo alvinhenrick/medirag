@@ -1,9 +1,7 @@
 name: CI + Sync to Hugging Face
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches: ["**"]
   workflow_dispatch:
 
 concurrency:

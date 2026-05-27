@@ -4,11 +4,11 @@ emoji: 🐨
 colorFrom: yellow
 colorTo: red
 sdk: gradio
-sdk_version: 5.15.0
+sdk_version: 6.15.0
 app_file: app.py
 pinned: false
 license: mit
-short_description: Ask plain-language questions about your medication — grounded in FDA DailyMed labels.
+short_description: Plain-language Q&A grounded in FDA DailyMed labels.
 ---
 
 <table>
@@ -187,8 +187,7 @@ tests/                   # Unit + integration tests
 
 ## Roadmap
 
-- [ ] Index all 6 DailyMed parts and publish to HF Hub
-- [ ] Daily/weekly automatic rebuild from DailyMed update files
+- [x] Index all 6 DailyMed parts and publish to HF (via Storage Buckets)
 - [ ] LLM evaluation harness on a curated patient-question benchmark
 - [ ] Optional reranker for top-k results
 - [ ] OpenTelemetry traces for retrieval + LM calls

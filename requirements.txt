@@ -7,7 +7,9 @@ aiohttp==3.11.12
 aiosignal==1.3.2
     # via aiohttp
 annotated-doc==0.0.4
-    # via typer
+    # via
+    #   fastapi
+    #   typer
 annotated-types==0.7.0
     # via pydantic
 anyio==4.8.0
@@ -16,7 +18,9 @@ anyio==4.8.0
     #   dspy
     #   gradio
     #   httpx
+    #   mcp
     #   openai
+    #   sse-starlette
     #   starlette
 async-timeout==4.0.3 ; python_full_version < '3.11'
     # via aiohttp
@@ -27,6 +31,8 @@ attrs==25.1.0
     #   aiohttp
     #   jsonschema
     #   referencing
+authlib==1.7.2
+    # via gradio
 beautifulsoup4==4.13.3
     # via medirag
 brotli==1.2.0
@@ -38,6 +44,8 @@ certifi==2025.1.31
     #   httpcore
     #   httpx
     #   requests
+cffi==2.0.0 ; platform_python_implementation != 'PyPy'
+    # via cryptography
 charset-normalizer==3.4.1
     # via requests
 click==8.4.1
@@ -53,6 +61,11 @@ colorama==0.4.6 ; sys_platform == 'win32'
     #   click
     #   loguru
     #   tqdm
+cryptography==48.0.0
+    # via
+    #   authlib
+    #   joserfc
+    #   pyjwt
 deprecation==2.1.0
     # via lancedb
 diskcache==5.6.3
@@ -63,7 +76,7 @@ dspy==3.2.1
     # via medirag
 exceptiongroup==1.2.2 ; python_full_version < '3.11'
     # via anyio
-fastapi==0.115.8
+fastapi==0.136.3
     # via gradio
 fastuuid==0.14.0
     # via litellm
@@ -106,8 +119,11 @@ httpx==0.28.1
     #   gradio-client
     #   huggingface-hub
     #   litellm
+    #   mcp
     #   openai
     #   safehttpx
+httpx-sse==0.4.3
+    # via mcp
 huggingface-hub==1.16.4
     # via
     #   gradio
@@ -124,6 +140,8 @@ idna==3.10
     #   yarl
 importlib-metadata==8.6.1
     # via litellm
+itsdangerous==2.2.0
+    # via gradio
 jinja2==3.1.6
     # via
     #   gradio
@@ -133,10 +151,14 @@ jiter==0.15.0
     # via openai
 joblib==1.4.2
     # via scikit-learn
+joserfc==1.6.7
+    # via authlib
 json-repair==0.59.10
     # via dspy
 jsonschema==4.23.0
-    # via litellm
+    # via
+    #   litellm
+    #   mcp
 jsonschema-specifications==2024.10.1
     # via jsonschema
 lance-namespace==0.7.7
@@ -157,6 +179,8 @@ markupsafe==2.1.5
     # via
     #   gradio
     #   jinja2
+mcp==1.27.1
+    # via gradio
 mdurl==0.1.2
     # via markdown-it-py
 mpmath==1.3.0
@@ -242,6 +266,8 @@ pyarrow==19.0.0
     # via
     #   lancedb
     #   medirag
+pycparser==3.0 ; implementation_name != 'PyPy' and platform_python_implementation != 'PyPy'
+    # via cffi
 pydantic==2.12.5
     # via
     #   dspy
@@ -250,14 +276,20 @@ pydantic==2.12.5
     #   lance-namespace-urllib3-client
     #   lancedb
     #   litellm
+    #   mcp
     #   medirag
     #   openai
+    #   pydantic-settings
 pydantic-core==2.41.5
     # via pydantic
+pydantic-settings==2.14.1
+    # via mcp
 pydub==0.25.1
     # via gradio
 pygments==2.19.1
     # via rich
+pyjwt==2.13.0
+    # via mcp
 python-dateutil==2.9.0.post0
     # via
     #   lance-namespace-urllib3-client
@@ -266,12 +298,17 @@ python-dotenv==1.0.1
     # via
     #   litellm
     #   medirag
+    #   pydantic-settings
 python-multipart==0.0.18
-    # via gradio
+    # via
+    #   gradio
+    #   mcp
 pytz==2025.1
     # via
     #   gradio
     #   pandas
+pywin32==311 ; sys_platform == 'win32'
+    # via mcp
 pyyaml==6.0.2
     # via
     #   gradio
@@ -323,10 +360,14 @@ sniffio==1.3.1
     #   openai
 soupsieve==2.6
     # via beautifulsoup4
-starlette==0.45.3
+sse-starlette==3.4.4
+    # via mcp
+starlette==1.1.0
     # via
     #   fastapi
     #   gradio
+    #   mcp
+    #   sse-starlette
 sympy==1.13.1
     # via torch
 tantivy==0.26.0
@@ -373,31 +414,42 @@ typing-extensions==4.15.0
     # via
     #   anyio
     #   beautifulsoup4
+    #   cryptography
     #   fastapi
     #   gradio
     #   gradio-client
     #   huggingface-hub
     #   lance-namespace-urllib3-client
+    #   mcp
     #   multidict
     #   openai
     #   pydantic
     #   pydantic-core
+    #   pyjwt
     #   referencing
     #   rich
     #   sentence-transformers
+    #   starlette
     #   torch
     #   typeguard
     #   typing-inspection
+    #   uvicorn
 typing-inspection==0.4.2
-    # via pydantic
+    # via
+    #   fastapi
+    #   mcp
+    #   pydantic
+    #   pydantic-settings
 tzdata==2025.1
     # via pandas
 urllib3==2.3.0
     # via
     #   lance-namespace-urllib3-client
     #   requests
-uvicorn==0.22.0
-    # via gradio
+uvicorn==0.48.0
+    # via
+    #   gradio
+    #   mcp
 win32-setctime==1.2.0 ; sys_platform == 'win32'
     # via loguru
 xxhash==3.5.0

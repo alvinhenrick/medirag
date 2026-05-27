@@ -8,7 +8,7 @@ sdk_version: 5.15.0
 app_file: app.py
 pinned: false
 license: mit
-short_description: Ask plain-language questions about your medication — grounded in FDA DailyMed labels.
+short_description: Plain-language Q&A grounded in FDA DailyMed labels.
 ---
 
 <table>

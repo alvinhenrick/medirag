@@ -42,6 +42,7 @@ MODELS = {
     "GPT-4o (" " quality)": "openai/gpt-4o",
 }
 DEFAULT_MODEL_LABEL = "GPT-4o mini (fast, cheap)"
+DEFAULT_TOP_K = 7
 
 
 logger.info(f"Loading LanceDB index from {LANCE_DB_PATH} (table={LANCE_TABLE})")
@@ -61,7 +62,7 @@ def clear_cache() -> None:
     gr.Info("Cache cleared", duration=1)
 
 
-async def ask(query: str, model_label: str, top_k: int):
+async def ask(query: str, model_label: str):
     if not query or not query.strip():
         yield "Please enter a question."
         return
@@ -69,7 +70,7 @@ async def ask(query: str, model_label: str, top_k: int):
     model_id = MODELS.get(model_label, MODELS[DEFAULT_MODEL_LABEL])
     lm = dspy.LM(model_id, max_tokens=1500)
 
-    rag = DspyRAG(indexer=indexer, k=int(top_k), hybrid=True)
+    rag = DspyRAG(indexer=indexer, k=DEFAULT_TOP_K, hybrid=True)
 
     # DSPy 3 requires per-task configuration; Gradio spawns a new task per request,
     # so we use `dspy.context()` instead of a global `dspy.configure()`.
@@ -85,7 +86,7 @@ h1 { text-align: center; display: block; }
 """
 
 
-with gr.Blocks(css=css, title="MediRAG") as app:
+with gr.Blocks(title="MediRAG") as app:
     gr.Markdown("# MediRAG — Ask about your medication")
     gr.Markdown(
         "Replace the tiny-print leaflet that came with your pills. Ask anything: "
@@ -100,12 +101,6 @@ with gr.Blocks(css=css, title="MediRAG") as app:
             label="Model",
             scale=2,
         )
-        top_k_dd = gr.Dropdown(
-            choices=[3, 5, 7, 10],
-            value=5,
-            label="Documents to retrieve",
-            scale=1,
-        )
         clear_bt = gr.Button("Clear cache", scale=1)
 
     input_text = gr.Textbox(
@@ -116,10 +111,10 @@ with gr.Blocks(css=css, title="MediRAG") as app:
     output_text = gr.Markdown(label="Answer")
     submit_bt = gr.Button("Ask", variant="primary")
 
-    submit_bt.click(fn=ask, inputs=[input_text, model_dd, top_k_dd], outputs=output_text)
-    input_text.submit(fn=ask, inputs=[input_text, model_dd, top_k_dd], outputs=output_text)
+    submit_bt.click(fn=ask, inputs=[input_text, model_dd], outputs=output_text)
+    input_text.submit(fn=ask, inputs=[input_text, model_dd], outputs=output_text)
     clear_bt.click(fn=clear_cache)
 
 
 if __name__ == "__main__":
-    app.launch()
+    app.launch(css=css)

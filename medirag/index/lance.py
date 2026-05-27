@@ -158,8 +158,9 @@ class LanceIndexer:
 
         query_vec = self._encode_query(query)
         if hybrid:
-            # Hybrid takes (vector, text): vector for semantic search, text for BM25.
-            search = self._table.search((query_vec, query), query_type="hybrid")
+            # Hybrid: set vector and text explicitly so lancedb never invokes
+            # its stored embedder (which can call `.cuda()` on CPU-only deploys).
+            search = self._table.search(query_type="hybrid").vector(query_vec).text(query)
         else:
             search = self._table.search(query_vec, query_type="vector")
         if where:

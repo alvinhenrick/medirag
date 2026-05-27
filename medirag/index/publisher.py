@@ -8,17 +8,17 @@ Usage:
     # HF_TOKEN must be in env (don't pass tokens on the command line)
     export HF_TOKEN=hf_xxx
 
-    # Default: uploads to hf://buckets/<bucket>/lance_db
+    # Default: uploads to hf://buckets/<bucket>/lance_db/v1
     uv run python -m medirag.index.publisher \\
         --db ./lance_db --bucket alvinhenrick/dailymed-embeddings
 
-    # Versioned prefix — keep the previous one published while testing a new build
+    # Publish a new version side-by-side with v1
     uv run python -m medirag.index.publisher \\
         --db ./lance_db --bucket alvinhenrick/dailymed-embeddings --prefix lance_db/v2
 
 Consumer side (mirror to local dir):
     from huggingface_hub import sync_bucket
-    sync_bucket("hf://buckets/alvinhenrick/dailymed-embeddings/lance_db", "./lance_db")
+    sync_bucket("hf://buckets/alvinhenrick/dailymed-embeddings/lance_db/v1", "./lance_db")
 """
 
 import argparse
@@ -37,8 +37,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--bucket", required=True, help="HF bucket id (e.g. user/dailymed-embeddings)")
     parser.add_argument(
         "--prefix",
-        default="lance_db",
-        help="Path inside the bucket (default: lance_db). Use e.g. lance_db/v2 to version.",
+        default="lance_db/v1",
+        help="Path inside the bucket (default: lance_db/v1). Bump to lance_db/v2 etc. for new versions.",
     )
     parser.add_argument("--private", action="store_true", help="Create the bucket as private if it doesn't exist")
     parser.add_argument("--delete", action="store_true", help="Remove remote files not present locally")

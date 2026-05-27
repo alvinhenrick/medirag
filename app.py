@@ -23,7 +23,7 @@ LANCE_DB_PATH = os.getenv("LANCE_DB_PATH", "./lance_db")
 LANCE_TABLE = os.getenv("LANCE_TABLE", "spl")
 CACHE_FILE = os.getenv("CACHE_FILE", "rag_cache.json")
 HF_BUCKET = os.getenv("HF_BUCKET")  # e.g. "alvinhenrick/dailymed-embeddings"
-HF_BUCKET_PREFIX = os.getenv("HF_BUCKET_PREFIX", "lance_db")  # path inside the bucket
+HF_BUCKET_PREFIX = os.getenv("HF_BUCKET_PREFIX", "lance_db/v1")  # path inside the bucket
 
 
 def _bootstrap_index_from_bucket(bucket_id: str, prefix: str, local_path: Path) -> None:

@@ -161,3 +161,10 @@ cython_debug/
 .idea/
 download/
 .DS_Store
+
+# MediRAG runtime artifacts (rebuildable, sometimes large)
+lance_db/
+*.lance/
+rag_cache.json
+test_*.json
+dm_spl_release_*.zip

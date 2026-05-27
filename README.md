@@ -4,10 +4,11 @@ emoji: 🐨
 colorFrom: yellow
 colorTo: red
 sdk: gradio
-sdk_version: 5.5.0
+sdk_version: 5.15.0
 app_file: app.py
 pinned: false
 license: mit
+short_description: Ask plain-language questions about your medication — grounded in FDA DailyMed labels.
 ---
 
 <table>
@@ -21,108 +22,177 @@ license: mit
     </tr>
 </table>
 
-**MediRAG** is a Retrieval-Augmented Generation (RAG) system designed to make drug-related information more accessible
-to
-patients. Many patients struggle with the patient information leaflets that accompany medications, which are often
-packed with crucial information in small print, leading to confusion about dosages, side effects, and other essential
-drug details. MedRAG aims to bridge this gap by providing a digital platform where users can easily ask questions and
-receive clear, understandable answers.
+**MediRAG** replaces the tiny-print patient information leaflet that comes with your medication.
+Ask anything about a drug — side effects, ingredients, dosing, contraindications, drug
+interactions, what the pill looks like — and get plain-language answers grounded in the FDA's
+DailyMed structured product labels.
 
 ## Features
 
-- **Bot and Website Development**: A user-friendly interface where patients can input questions and receive responses
-  derived from drug guides and patient leaflets.
-- **Input and Output Guardrails**: Safeguards to ensure the reliability, appropriateness, and safety of the information
-  provided, preventing potential misuse.
-- **DSPy Prompting**: Utilizes Dynamic Scripting in Python (DSPy) to create reliable and adaptable prompts for the
-  question-answering process.
-- **Retrieval-Augmented Generation (RAG) with Semantic Caching**: Enhances data retrieval and response time by caching
-  semantically similar queries, ensuring both speed and accuracy.
-- **Vector Database**: Leverages a vector database for efficient retrieval of drug information, enabling quick and
-  precise responses to user queries.
-- **Observability**: Integrated monitoring tools to track system health, retrieval performance, and ensure consistent,
-  high-quality user experiences.
+- **Patient-friendly Q&A**: Conversational answers, not regulatory wall-of-text.
+- **Full SPL coverage**: Every section (narrative + structured product data) is indexed —
+  ingredients with strengths, NDC codes, pill color/shape/imprint, manufacturer, route.
+- **Hybrid retrieval**: Vector search (PubMedBERT) + BM25 full-text in one query, so brand
+  names and ingredient names match exactly while paraphrased questions still hit.
+- **Cross-drug queries**: Metadata-filtered search ("which other drugs contain
+  atorvastatin?", "is there an IV form?") via ingredient UNII codes and SQL filters.
+- **Input and output guardrails**: DSPy-based safety checks on both the user's question and
+  the model's answer.
+- **Streaming answers**: Token-level streaming via `dspy.streamify`.
+- **Semantic cache**: Reuses answers for semantically similar queries.
+- **Model picker**: GPT-4o-mini, GPT-4o.
 
-## High-Level Architecture
+## Architecture
 
-![Architecture](doc/images/MediRAg.drawio.png)
+```
+DailyMed SPL zips
+    │
+    ▼  medirag.index.runner  (streaming per-part)
+parse_spl  →  LanceDB  →  (optional) upload to HF Hub
+    │           │
+    │           ▼
+    │      PubMedBERT (NeuML/pubmedbert-base-embeddings, 768d)
+    │      Hybrid index: vector + BM25
+    │
+    ▼  app.py
+DSPy module (input guard → retrieve → ChainOfThought → output guard)
+    │
+    ▼  dspy.streamify
+Streamed answer in Gradio
+```
 
-1. **Question-Answering Bot and Website**:
+**Key tech**:
 
-   - Users can interact with a bot on the website to ask drug-related questions.
-   - The bot retrieves information from drug guides and patient information leaflets to provide clear and concise
-     answers.
-
-2. **Input and Output Guardrails**:
-
-   - Implemented to filter inappropriate or potentially harmful queries.
-   - Ensures the bot's responses are accurate and aligned with medical guidelines.
-
-3. **DSPy Prompting**:
-
-   - Uses DSPy to dynamically generate prompts that guide the retrieval process.
-   - Helps in crafting responses that are both contextually relevant and easy to understand.
-
-4. **LlamaIndex streaming workflows**:
-
-   - Uses LlamaIndex to construct the streaming workflow.
-   - Helps in crafting responses that are both contextually relevant and easy to understand.
-
-5. **Retrieval-Augmented Generation (RAG) with Semantic Caching**:
-
-   - Utilizes a RAG model to combine real-time retrieval with language generation.
-   - Semantic caching improves the response time by reusing answers to similar questions.
-
-6. **Vector Database**:
-   - Employs a vector database for fast and effective retrieval of information.
-   - Enhances the bot's ability to search and retrieve relevant content from large datasets.
+- [DSPy](https://dspy.ai) — module composition, prompting, streaming, guardrails
+- [LanceDB](https://lancedb.com) — embedded vector store with native embeddings + hybrid search
+- [PubMedBERT](https://huggingface.co/NeuML/pubmedbert-base-embeddings) — biomedical embeddings
+- [Gradio](https://gradio.app) — UI
+- [DailyMed](https://dailymed.nlm.nih.gov) — FDA drug labels (free, public)
 
 ## Getting Started
 
-To get started with MedRAG:
-
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/alvinhenrick/medirag.git
-   ```
-2. Create `.env` and insert your tokens
-   ```bash
-       HF_TOKEN=Your token
-       OPENAI_API_KEY=Your token
-   ```
-3. Install the required dependencies:
-   ```bash
    cd medirag
+   ```
+
+2. Install dependencies (uses [uv](https://docs.astral.sh/uv/)):
+
+   ```bash
    uv sync
    ```
-4. Run the app:
+
+3. Create a `.env` file with your model API key:
+
    ```bash
-    uv run app.py
+   OPENAI_API_KEY=...
+   HF_TOKEN=...             # optional, only for publishing the index
    ```
 
-## To-Do List
+4. Get the index. Either pull the prebuilt one from a Hugging Face Bucket:
 
-### High Priority
+   ```bash
+   HF_BUCKET=alvinhenrick/dailymed-embeddings uv run app.py
+   # → app syncs lance_db/ from the bucket on first start
+   ```
 
-- [ ] Implement comprehensive observability tools to monitor and log system performance effectively.
-- [ ] Explore and implement semantic chunking to enhance retrieval performance and accuracy.
-- [ ] Build an comprehensive LLM evaluation with respect to Q&A on Drug Label Data.
+   …or build it yourself from DailyMed
+   ([official release page](https://dailymed.nlm.nih.gov/dailymed/spl-resources-all-drug-labels.cfm)):
 
-### Medium Priority
+   ```bash
+   # Quick smoke build: 100 SPLs from one part (~1-2 min)
+   uv run python -m medirag.index.runner \
+       --source path/to/dm_spl_release_human_rx_part1.zip \
+       --db ./lance_db \
+       --limit 100
 
-- [ ] Experiment with different embeddings and other models to enhance retrieval performance and accuracy.
-- [ ] Experiment with different embeddings and other models to improve the accuracy and relevance of bot responses.
-- [ ] Index all five DailyMed datasets to ensure complete data coverage and retrieval capabilities.
-  - [x] https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part1.zip
-  - [ ] https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part2.zip
-  - [ ] https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part3.zip
-  - [ ] https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part4.zip
-  - [ ] https://dailymed-data.nlm.nih.gov/public-release-files/dm_spl_release_human_rx_part5.zip
+   # Full single-part build (~30-60 min on a Mac)
+   uv run python -m medirag.index.runner \
+       --source path/to/dm_spl_release_human_rx_part1.zip \
+       --db ./lance_db
 
-### Low Priority
+   # All 6 parts from official URLs (streams downloads, peak disk ~5 GB)
+   uv run python -m medirag.index.runner --all --db ./lance_db
+   ```
 
-- [ ] Add an LLM agent to further enhance the system’s capabilities and improve interaction dynamics.
+5. Run the app:
+
+   ```bash
+   LANCE_DB_PATH=./lance_db uv run app.py
+   ```
+
+   Open the URL printed by Gradio, pick a model, ask a question.
+
+## Publishing the index to Hugging Face
+
+The built index is a self-contained directory (`lance_db/`). Publish it to a
+[Hugging Face Bucket](https://huggingface.co/docs/huggingface_hub/en/guides/buckets)
+(S3-like Xet-backed storage — re-publishing only transfers changed chunks):
+
+```bash
+export HF_TOKEN=hf_xxx
+uv run python -m medirag.index.publisher \
+    --db ./lance_db --bucket alvinhenrick/dailymed-embeddings
+# → uploads to hf://buckets/alvinhenrick/dailymed-embeddings/lance_db/v1/
+```
+
+Consumers point at it via `HF_BUCKET=alvinhenrick/dailymed-embeddings`
+(defaults to prefix `lance_db/v1`; override with `HF_BUCKET_PREFIX=lance_db/v2`).
+
+To publish a new version side-by-side with v1, pass `--prefix`:
+
+```bash
+uv run python -m medirag.index.publisher \
+    --db ./lance_db --bucket alvinhenrick/dailymed-embeddings --prefix lance_db/v2
+```
+
+## Testing
+
+```bash
+uv run pytest tests/
+```
+
+22 tests covering:
+
+- SPL XML extraction (`tests/core/test_xml_reader.py`)
+- LanceDB indexer + retrieval scenarios (`tests/index/test_lance.py`)
+- End-to-end runner against a synthetic zip (`tests/index/test_runner.py`)
+- Semantic cache (`tests/cache/test_semantic_cache.py`)
+
+Tests run on the sample SPL XML in `tests/data/` — no DailyMed download needed.
+
+## Project Layout
+
+```
+medirag/
+├── core/
+│   └── reader.py        # SPL XML → ProductCard + SectionRecord dataclasses
+├── index/
+│   ├── lance.py         # LanceIndexer (PubMedBERT + LanceDB + hybrid search)
+│   └── runner.py        # CLI to build/publish the index from DailyMed zips
+├── rag/
+│   ├── dspy.py          # DspyRAG module + DailyMedRetrieve + stream_answer
+│   └── qa_rag.py        # Cache + streaming pipeline
+├── cache/
+│   └── local.py         # Semantic cache (numpy-backed)
+└── guardrail/
+    ├── input.py         # Block harmful/off-topic inputs
+    └── output.py        # Block unsafe model outputs
+
+app.py                   # Gradio app
+tests/                   # Unit + integration tests
+```
+
+## Roadmap
+
+- [ ] Index all 6 DailyMed parts and publish to HF Hub
+- [ ] Daily/weekly automatic rebuild from DailyMed update files
+- [ ] LLM evaluation harness on a curated patient-question benchmark
+- [ ] Optional reranker for top-k results
+- [ ] OpenTelemetry traces for retrieval + LM calls
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.

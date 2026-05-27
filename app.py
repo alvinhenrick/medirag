@@ -1,105 +1,125 @@
+"""
+MediRAG Gradio app — DSPy 3 + LanceDB + PubMedBERT.
+"""
+
+import os
+from pathlib import Path
+
 import dspy
 import gradio as gr
 from dotenv import load_dotenv
+from huggingface_hub import sync_bucket
+from loguru import logger
 
 from medirag.cache.local import LocalSemanticCache
-from medirag.index.kdbai import KDBAIDailyMedIndexer
-from medirag.rag.dspy import DspyRAG, DailyMedRetrieve
-from medirag.rag.llama_index import WorkflowRAG
-from llama_index.llms.openai import OpenAI
-from llama_index.core import Settings
+from medirag.index.lance import LanceIndexer
+from medirag.rag.dspy import DspyRAG
+from medirag.rag.pipeline import answer_stream
 
-from medirag.rag.qa_rag import QuestionAnswerRunner
 
-# Load Env
 load_dotenv()
 
-# Initialize the Retriever
-indexer = KDBAIDailyMedIndexer()
-indexer.load_index()
-rm = DailyMedRetrieve(indexer=indexer)
-
-# Set the LLM model for DSPy
-lm = dspy.LM("openai/gpt-4o-mini", max_tokens=4000)
-dspy.settings.configure(lm=lm, rm=rm)
-
-# Set the LLM model for LlamaIndex
-Settings.llm = OpenAI(model="gpt-4o-mini")
-
-sm = LocalSemanticCache(model_name="sentence-transformers/all-mpnet-base-v2", dimension=768, json_file="rag_cache.json")
+LANCE_DB_PATH = os.getenv("LANCE_DB_PATH", "./lance_db")
+LANCE_TABLE = os.getenv("LANCE_TABLE", "spl")
+CACHE_FILE = os.getenv("CACHE_FILE", "rag_cache.json")
+HF_BUCKET = os.getenv("HF_BUCKET")  # e.g. "alvinhenrick/dailymed-embeddings"
+HF_BUCKET_PREFIX = os.getenv("HF_BUCKET_PREFIX", "lance_db/v1")  # path inside the bucket
 
 
-def clear_cache():
-    sm.clear()
-    gr.Info("Cache is cleared", duration=1)
+def _bootstrap_index_from_bucket(bucket_id: str, prefix: str, local_path: Path) -> None:
+    src = f"hf://buckets/{bucket_id}/{prefix.strip('/')}"
+    logger.info(f"Bootstrapping index from {src} → {local_path}")
+    local_path.mkdir(parents=True, exist_ok=True)
+    sync_bucket(src, str(local_path))
+    logger.info(f"Index ready at {local_path}")
 
 
-async def ask_med_question(query: str, enable_stream: bool, enable_reranking: bool, top_k: int):
-    if enable_stream:
-        llama_index_rag = WorkflowRAG(indexer=indexer, timeout=60, top_k=top_k, with_reranker=enable_reranking)
-        qa = QuestionAnswerRunner(sm=sm, rag=llama_index_rag)
-    else:
-        dspy_rag = DspyRAG(k=top_k, with_reranker=enable_reranking)
-        qa = QuestionAnswerRunner(sm=sm, rag=dspy_rag)
-    accumulated_response = ""
+if HF_BUCKET and not Path(LANCE_DB_PATH).exists():
+    _bootstrap_index_from_bucket(HF_BUCKET, HF_BUCKET_PREFIX, Path(LANCE_DB_PATH))
 
-    response = qa.ask(query, enable_stream=enable_stream)
+MODELS = {
+    "GPT-4o mini (fast, cheap)": "openai/gpt-4o-mini",
+    "GPT-4o (" " quality)": "openai/gpt-4o",
+}
+DEFAULT_MODEL_LABEL = "GPT-4o mini (fast, cheap)"
 
-    async for chunk in response:
-        accumulated_response += chunk
-        yield accumulated_response
+
+logger.info(f"Loading LanceDB index from {LANCE_DB_PATH} (table={LANCE_TABLE})")
+indexer = LanceIndexer(db_path=LANCE_DB_PATH, table_name=LANCE_TABLE)
+if indexer.table is None:
+    logger.warning(f"No index found at {LANCE_DB_PATH}. Build one with `uv run python -m medirag.index.runner`.")
+
+semantic_cache = LocalSemanticCache(
+    model_name="sentence-transformers/all-mpnet-base-v2",
+    dimension=768,
+    json_file=CACHE_FILE,
+)
+
+
+def clear_cache() -> None:
+    semantic_cache.clear()
+    gr.Info("Cache cleared", duration=1)
+
+
+async def ask(query: str, model_label: str, top_k: int):
+    if not query or not query.strip():
+        yield "Please enter a question."
+        return
+
+    model_id = MODELS.get(model_label, MODELS[DEFAULT_MODEL_LABEL])
+    lm = dspy.LM(model_id, max_tokens=1500)
+
+    rag = DspyRAG(indexer=indexer, k=int(top_k), hybrid=True)
+
+    # DSPy 3 requires per-task configuration; Gradio spawns a new task per request,
+    # so we use `dspy.context()` instead of a global `dspy.configure()`.
+    with dspy.context(lm=lm):
+        accumulated = ""
+        async for chunk in answer_stream(rag, semantic_cache, query):
+            accumulated += chunk
+            yield accumulated
 
 
 css = """
-h1 {
-    text-align: center;
-    display:block;
-}
-#md {margin-top: 70px}
+h1 { text-align: center; display: block; }
 """
 
-# Set up the Gradio interface with a checkbox for enabling streaming
-with gr.Blocks(css=css) as app:
-    gr.Markdown("# DailyMed RAG")
-    with gr.Row():
-        with gr.Column(scale=1, min_width=100):
-            gr.Image(
-                "doc/images/MediRag.png",
-                width=100,
-                min_width=100,
-                show_label=False,
-                show_download_button=False,
-                show_share_button=False,
-                show_fullscreen_button=False,
-            )
-        with gr.Column(scale=10):
-            gr.Markdown(
-                "### Ask any question about medication usage and get answers based on DailyMed data.", elem_id="md"
-            )
-    with gr.Row():
-        enable_stream_chk = gr.Checkbox(label="Enable Streaming", value=False)
-        enable_reranking_chk = gr.Checkbox(label="Enable ReRanking", value=False)
-        top_k_dropdown = gr.Dropdown(
-            [3, 5, 7],
-            label="Top K",
-            info="Documents to Retrieve!",
-            min_width=100,
-            value=3,
-        )
-        clear_cache_bt = gr.Button("Clear Cache")
 
-    input_text = gr.Textbox(lines=2, label="Question", placeholder="Enter your question about a drug...")
-    output_text = gr.Textbox(interactive=False, label="Response", lines=10)
-    submit_bt = gr.Button("Submit")
-
-    # Update the button click function to include the checkbox value
-    submit_bt.click(
-        fn=ask_med_question,
-        inputs=[input_text, enable_stream_chk, enable_reranking_chk, top_k_dropdown],
-        outputs=output_text,
+with gr.Blocks(css=css, title="MediRAG") as app:
+    gr.Markdown("# MediRAG — Ask about your medication")
+    gr.Markdown(
+        "Replace the tiny-print leaflet that came with your pills. Ask anything: "
+        "side effects, ingredients, dosing, interactions, what the pill looks like. "
+        "Answers are grounded in FDA DailyMed drug labels."
     )
 
-    # Update the button click function to include the checkbox value
-    clear_cache_bt.click(fn=clear_cache)
+    with gr.Row():
+        model_dd = gr.Dropdown(
+            choices=list(MODELS.keys()),
+            value=DEFAULT_MODEL_LABEL,
+            label="Model",
+            scale=2,
+        )
+        top_k_dd = gr.Dropdown(
+            choices=[3, 5, 7, 10],
+            value=5,
+            label="Documents to retrieve",
+            scale=1,
+        )
+        clear_bt = gr.Button("Clear cache", scale=1)
 
-app.launch()
+    input_text = gr.Textbox(
+        lines=2,
+        label="Your question",
+        placeholder="e.g. What are the side effects of metformin? Can I take ibuprofen if I'm on warfarin?",
+    )
+    output_text = gr.Markdown(label="Answer")
+    submit_bt = gr.Button("Ask", variant="primary")
+
+    submit_bt.click(fn=ask, inputs=[input_text, model_dd, top_k_dd], outputs=output_text)
+    input_text.submit(fn=ask, inputs=[input_text, model_dd, top_k_dd], outputs=output_text)
+    clear_bt.click(fn=clear_cache)
+
+
+if __name__ == "__main__":
+    app.launch()

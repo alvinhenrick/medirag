@@ -4,11 +4,6 @@ MediRAG Gradio app — DSPy 3 + LanceDB + PubMedBERT.
 
 import os
 
-# Hide CUDA from torch on CPU-only deployments (HF Space free tier).
-# Must run before torch is imported by sentence-transformers / lancedb.
-if not os.environ.get("MEDIRAG_ALLOW_CUDA"):
-    os.environ["CUDA_VISIBLE_DEVICES"] = ""
-
 from pathlib import Path
 
 import dspy

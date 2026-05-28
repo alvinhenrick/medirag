@@ -45,21 +45,34 @@ DailyMed structured product labels.
 
 ## Architecture
 
-```
-DailyMed SPL zips
-    │
-    ▼  medirag.index.runner  (streaming per-part)
-parse_spl  →  LanceDB  →  (optional) upload to HF Hub
-    │           │
-    │           ▼
-    │      PubMedBERT (NeuML/pubmedbert-base-embeddings, 768d)
-    │      Hybrid index: vector + BM25
-    │
-    ▼  app.py
-DSPy module (input guard → retrieve → ChainOfThought → output guard)
-    │
-    ▼  dspy.streamify
-Streamed answer in Gradio
+```mermaid
+flowchart TD
+    classDef user fill:#fde7c1,stroke:#b06a00,color:#222
+    classDef step fill:#e9f0ff,stroke:#3868c1,color:#0a2a66
+    classDef store fill:#ffe7e7,stroke:#c43b3b,color:#5a0d0d
+    classDef model fill:#e7f7e9,stroke:#2a8a3e,color:#103d1c
+    classDef decision fill:#fff3b0,stroke:#b08a00,color:#3a2a00
+    classDef dspy fill:#ece1ff,stroke:#5b3fbf,color:#1f0c5a
+
+    %% Build pipeline (medirag.index.runner + publisher)
+    DM["DailyMed SPL zips"]:::store --> P["parse_spl"]:::step
+    P --> PB["PubMedBERT<br/>NeuML/pubmedbert-base-embeddings · 768d"]:::model
+    PB --> L[("LanceDB<br/>hybrid: vector + BM25")]:::store
+    L -- "publisher.py · sync_bucket" --> HF[("Hugging Face Hub bucket")]:::store
+    HF -. "sync on startup" .-> L
+
+    %% Runtime (app.py)
+    U(["User"]):::user --> Q["Question"]:::step
+    Q --> IG["Input guardrail · DSPy"]:::dspy
+    IG -- blocked --> R(["Streamed answer · Gradio"]):::user
+    IG -- allowed --> C{"Semantic cache<br/>hit?"}:::decision
+    C -- "YES (cached)" --> R
+    C -- NO --> RT["Hybrid retrieval"]:::step
+    RT --> L
+    L --> CT["ChainOfThought · DSPy<br/>GenerateAnswer"]:::dspy
+    CT --> OG["Output guardrail · DSPy"]:::dspy
+    OG --> R
+    C -. "embed query" .-> MP["sentence-transformers/<br/>all-mpnet-base-v2"]:::model
 ```
 
 **Key tech**:
